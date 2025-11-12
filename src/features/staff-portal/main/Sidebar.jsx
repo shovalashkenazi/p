@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, VStack, HStack, Text, Flex, Divider } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Flex, Divider, useColorModeValue } from "@chakra-ui/react";
 import {
   Package,
   BookOpen,
@@ -20,7 +20,13 @@ import { Image } from "@chakra-ui/react";
 import logo from "../../../assets/logo.png";
 
 const Sidebar = () => {
-  const primaryColor = "primary.100";
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const primaryColor = useColorModeValue("primary.100", "primary.300");
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  const secondaryTextColor = useColorModeValue("gray.600", "gray.400");
+  const hoverBg = useColorModeValue("gray.50", "gray.700");
+  const activeBg = useColorModeValue("white", "gray.600");
 
   const menuItems = [
     {
@@ -126,7 +132,7 @@ const Sidebar = () => {
   ];
 
   const MenuItem = React.memo(
-    ({ icon: Icon, label, children, primaryColor }) => {
+    ({ icon: Icon, label, children }) => {
       const [isOpen, setIsOpen] = useState(false);
       const isActive = label === "פריטים";
       const contentRef = useRef(null);
@@ -139,48 +145,45 @@ const Sidebar = () => {
       }, [children]);
 
       return (
-        <Box
-          style={{
-            contain: "layout style paint",
-            transform: "translateZ(0)",
-            willChange: isOpen ? "auto" : "auto",
-          }}
-        >
+        <Box>
           <Flex
             w="full"
             align="center"
             cursor="pointer"
             borderRadius="xl"
-            color={isActive ? "gray.800" : "gray.600"}
+            color={isActive ? textColor : secondaryTextColor}
+            bg={isActive ? activeBg : "transparent"}
             _hover={{
-              bg: isActive ? "white" : "gray.100",
+              bg: isActive ? activeBg : hoverBg,
+              transform: "translateX(-2px)",
             }}
             onClick={() => setIsOpen(!isOpen)}
             transition="all 0.2s ease-in-out"
+            border="1px solid"
+            borderColor={isActive ? borderColor : "transparent"}
+            boxShadow={isActive ? "sm" : "none"}
           >
-            {/* פס ירוק בצד שמאל (active indicator) */}
+            {/* Active Indicator */}
             <Box
-              w="6px"
+              w="4px"
               h="45px"
-              bg={isActive ? "primary.100" : "transparent"}
-              borderRadius="150px 0 0 150px "
-              transition="background-color 0.2s ease-in-out"
+              bg={isActive ? primaryColor : "transparent"}
+              borderRadius="0 4px 4px 0"
+              transition="all 0.2s ease-in-out"
             />
 
-            {/* תוכן התפריט */}
+            {/* Menu Content */}
             <HStack flex="1" px={4} py={3} justifyContent="space-between">
               <HStack spacing={3}>
                 <Icon size={18} />
-                <Text fontSize="sm" fontWeight={isActive ? "600" : "400"}>
+                <Text fontSize="sm" fontWeight={isActive ? "600" : "500"}>
                   {label}
                 </Text>
               </HStack>
 
               <Box
-                style={{
-                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s ease-out",
-                }}
+                transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"}
+                transition="transform 0.2s ease-out"
               >
                 <ChevronDown size={16} />
               </Box>
@@ -189,59 +192,52 @@ const Sidebar = () => {
 
           <Box
             overflow="hidden"
-            style={{
-              height: isOpen ? `${height}px` : "0px",
-              transition: "height 0.2s ease-out",
-              // GPU layer
-              transform: "translateZ(0)",
-              backfaceVisibility: "hidden",
-            }}
+            height={isOpen ? `${height}px` : "0px"}
+            transition="height 0.25s ease-out"
           >
             <VStack
               ref={contentRef}
               align="stretch"
-              spacing={0}
-              mt={1}
+              spacing={1}
+              mt={2}
               pl={4}
-              style={{
-                opacity: isOpen ? 1 : 0,
-                transition: "opacity 0.15s ease-in-out",
-              }}
+              opacity={isOpen ? 1 : 0}
+              transition="opacity 0.2s ease-in-out"
             >
               {children?.map((child, idx) => {
                 const isChildActive = idx === 0 && label === "פריטים";
                 return (
-                  <Box key={idx}>
-                    <HStack
-                      px={4}
-                      py={2}
-                      cursor={child.disabled ? "not-allowed" : "pointer"}
-                      opacity={child.disabled ? 0.5 : 1}
-                      borderRadius="lg"
-                      bg={isChildActive ? "primary.100" : "transparent"}
-                      color={isChildActive ? primaryColor : "gray.600"}
-                      _hover={
-                        !child.disabled
-                          ? {
-                              bg: isChildActive ? "primary.100" : "gray.50",
-                            }
-                          : {}
-                      }
-                      transition="background-color 0.2s"
-                      spacing={3}
+                  <HStack
+                    key={idx}
+                    px={4}
+                    py={2}
+                    cursor={child.disabled ? "not-allowed" : "pointer"}
+                    opacity={child.disabled ? 0.5 : 1}
+                    borderRadius="lg"
+                    bg={isChildActive ? primaryColor : "transparent"}
+                    color={isChildActive ? "white" : secondaryTextColor}
+                    _hover={
+                      !child.disabled
+                        ? {
+                            bg: isChildActive ? primaryColor : hoverBg,
+                            transform: "translateX(-2px)",
+                          }
+                        : {}
+                    }
+                    transition="all 0.2s"
+                    spacing={3}
+                  >
+                    <Circle
+                      size={6}
+                      fill={isChildActive ? "white" : secondaryTextColor}
+                    />
+                    <Text
+                      fontSize="sm"
+                      fontWeight={isChildActive ? "600" : "400"}
                     >
-                      <Circle
-                        size={6}
-                        fill={isChildActive ? primaryColor : "gray.400"}
-                      />
-                      <Text
-                        fontSize="sm"
-                        fontWeight={isChildActive ? "500" : "400"}
-                      >
-                        {child.label}
-                      </Text>
-                    </HStack>
-                  </Box>
+                      {child.label}
+                    </Text>
+                  </HStack>
                 );
               })}
             </VStack>
@@ -253,56 +249,65 @@ const Sidebar = () => {
 
   return (
     <Box
-      w="220px"
-      h="94vh"
-      bg="#F7F7F7"
+      w="280px"
+      h="100%"
+      bg={bgColor}
       border="1px solid"
-      borderColor="gray.200"
-      borderRadius="25px"
+      borderColor={borderColor}
+      borderRadius="20px"
       overflowY="auto"
       overflowX="hidden"
+      boxShadow="sm"
       css={{
         "&::-webkit-scrollbar": {
-          width: "0px",
+          width: "8px",
+        },
+        "&::-webkit-scrollbar-track": {
           background: "transparent",
         },
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-        scrollBehavior: "smooth",
-        // בידוד מלא + GPU acceleration
-        contain: "layout style paint",
-        transform: "translateZ(0)",
-        backfaceVisibility: "hidden",
-        perspective: "1000px",
+        "&::-webkit-scrollbar-thumb": {
+          background: borderColor,
+          borderRadius: "10px",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          background: secondaryTextColor,
+        },
       }}
-      p={4}
+      p={5}
     >
       {/* Logo */}
-      <Flex mb={4} gap={2}>
-        <Image src={logo} alt="Logo" w="150px" />
+      <Flex mb={6} justify="center" align="center">
+        <Image src={logo} alt="Logo" w="180px" objectFit="contain" />
       </Flex>
 
-      <Divider mb={4} />
+      <Divider mb={6} borderColor={borderColor} />
 
       {/* Menu Section */}
-      <VStack p={1} align="stretch" mb={6}>
+      <VStack align="stretch" spacing={2} mb={6}>
         {menuItems.map((item, index) => (
-          <MenuItem key={index} {...item} primaryColor={primaryColor} />
+          <MenuItem key={index} {...item} />
         ))}
       </VStack>
 
-      <Divider my={4} />
+      <Divider my={6} borderColor={borderColor} />
 
       {/* Settings Section */}
-      <VStack align="stretch" spacing={1}>
-        <Text fontSize="xs" fontWeight="600" color="gray.500" mb={2} px={4}>
+      <VStack align="stretch" spacing={2}>
+        <Text
+          fontSize="xs"
+          fontWeight="700"
+          color={secondaryTextColor}
+          mb={2}
+          px={4}
+          textTransform="uppercase"
+          letterSpacing="wide"
+        >
           הגדרות
         </Text>
         <MenuItem
           icon={Settings}
           label="הגדרות"
           children={settingsItems}
-          primaryColor={primaryColor}
         />
       </VStack>
     </Box>

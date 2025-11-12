@@ -9,50 +9,49 @@ import {
   Avatar,
   HStack,
   Text,
-  Badge,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { Search, Mail, Bell, ChevronDown } from "lucide-react";
 
 const Header = () => {
-  const primaryColor = "#2D5F5D";
-  /* עדכון ערכי גודל וצבע */
-  const iconColor = "#000000ff";
-  const avatarSize = "35px"; // שומר על פרופורציה טבעית לשורה
-  const iconSize = 20; // מגדיל מעט את האייקונים לעומת 17
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  const iconColor = useColorModeValue("gray.600", "gray.400");
+  const hoverBg = useColorModeValue("gray.50", "gray.700");
+  const primaryColor = useColorModeValue("primary.100", "primary.300");
 
   return (
     <Box
       as="header"
       px={6}
-      py={2}
-      position="sticky"
-      bg="#F7F7F7"
+      py={3}
+      bg={bgColor}
       border="1px solid"
-      borderColor="gray.200"
-      borderRadius="25px"
-      top="0"
-      zIndex="10"
-      boxShadow="0 2px 8px rgba(0, 0, 0, 0.05)"
+      borderColor={borderColor}
+      borderRadius="20px"
+      boxShadow="sm"
     >
       <Flex justify="space-between" align="center">
         {/* Search Bar */}
-        <InputGroup maxW="350px">
+        <InputGroup maxW="400px">
           <InputLeftElement pointerEvents="none" h="full">
-            <Search size={17} color="black" />
+            <Search size={18} color={iconColor} />
           </InputLeftElement>
           <Input
             placeholder="חיפוש..."
-            bg="white"
+            bg={useColorModeValue("gray.50", "gray.700")}
             border="1px solid"
-            borderColor="gray.300"
-            borderRadius="20px"
-            h="35px"
+            borderColor={borderColor}
+            borderRadius="full"
+            h="40px"
+            fontSize="sm"
             _focus={{
               borderColor: primaryColor,
-              boxShadow: `0 0 0 1px ${primaryColor}`,
-              bg: "white",
+              boxShadow: `0 0 0 1px var(--chakra-colors-primary-100)`,
+              bg: useColorModeValue("white", "gray.600"),
             }}
-            _placeholder={{ color: "gray.400" }}
+            _placeholder={{ color: useColorModeValue("gray.400", "gray.500") }}
           />
         </InputGroup>
 
@@ -60,46 +59,51 @@ const Header = () => {
         <HStack spacing={3}>
           {/* Messages Button */}
           <IconButton
-            icon={<Mail size={iconSize} color={iconColor} />}
+            icon={<Mail size={20} />}
             variant="ghost"
             borderRadius="full"
-            aria-label="Messages"
+            aria-label="הודעות"
             size="md"
-            bg="white"
-            _hover={{ bg: "gray.100" }}
+            color={iconColor}
+            _hover={{ bg: hoverBg, color: primaryColor }}
+            transition="all 0.2s"
           />
 
           {/* Notifications Button */}
           <IconButton
-            icon={<Bell size={iconSize} color={iconColor} />}
+            icon={<Bell size={20} />}
             variant="ghost"
             borderRadius="full"
-            aria-label="Notifications"
-            bg="white"
+            aria-label="התראות"
+            color={iconColor}
             size="md"
-            _hover={{ bg: "gray.100" }}
+            _hover={{ bg: hoverBg, color: primaryColor }}
+            transition="all 0.2s"
           />
 
           {/* User Profile */}
           <HStack
             spacing={3}
             cursor="pointer"
-            px={3}
+            px={4}
             py={2}
-            borderRadius="xl"
-            _hover={{ bg: "gray.50" }}
+            borderRadius="full"
+            bg={useColorModeValue("gray.50", "gray.700")}
+            _hover={{ bg: hoverBg, transform: "translateY(-1px)" }}
             transition="all 0.2s"
+            border="1px solid"
+            borderColor={borderColor}
           >
-            <Avatar boxSize={avatarSize} bg={iconColor} color="white" />
+            <Avatar boxSize="35px" bg={primaryColor} color="white" />
             <Box display={{ base: "none", md: "block" }}>
-              <Text fontWeight="600" fontSize="sm" color="gray.700">
+              <Text fontWeight="600" fontSize="sm" color={textColor}>
                 שובל חיים אשכנזי
               </Text>
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")}>
                 shoval@tractorsglass.com
               </Text>
             </Box>
-            <ChevronDown size={18} color={iconColor} />
+            <ChevronDown size={16} color={iconColor} />
           </HStack>
         </HStack>
       </Flex>

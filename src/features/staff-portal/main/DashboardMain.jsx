@@ -14,58 +14,59 @@ import {
   useColorModeValue,
   Avatar,
 } from "@chakra-ui/react";
+
 const DashboardMain = () => {
-  const bgColor = useColorModeValue("#F7F7F7", "gray.900");
+  const bgColor = useColorModeValue("gray.50", "gray.900");
   const cardBg = useColorModeValue("white", "gray.800");
   const primary = useColorModeValue("primary.100", "primary.300");
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  const secondaryText = useColorModeValue("gray.600", "gray.400");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
     <Box
-      bg="#F7F7F7"
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="25px"
-      h="100vh"
-      overflowY="auto"
-      p={4} // מעט קטן יותר
+      p={8}
       dir="rtl"
-      sx={{
-        "::-webkit-scrollbar": { width: "0px", height: "0px" },
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-      }}
     >
       {/* כותרת העמוד */}
-      <Flex justify="space-between" align="center" mb={4}>
+      <Flex justify="space-between" align="center" mb={8}>
         <Box>
-          <Heading size="lg" mb={1} color={primary}>
+          <Heading size="xl" mb={2} color={textColor} fontWeight="bold">
             זכוכית מרכז זגגות טרקטורים בע"מ
           </Heading>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="md" color={secondaryText}>
             תכנן, סדר עדיפויות ובצע את המשימות שלך בקלות.
           </Text>
         </Box>
-        <HStack spacing={2}>
+        <HStack spacing={3}>
           <Button
             bg={primary}
             color="white"
             borderRadius="full"
-            px={4}
-            py={1}
-            fontSize="sm"
-            _hover={{ bg: "primary.200" }}
+            px={6}
+            py={3}
+            fontSize="md"
+            fontWeight="600"
+            _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
+            _active={{ transform: "translateY(0)" }}
+            transition="all 0.2s"
+            boxShadow="md"
           >
             + הוסף פרויקט
           </Button>
           <Button
             variant="outline"
             borderRadius="full"
-            px={4}
-            py={1}
-            fontSize="sm"
+            px={6}
+            py={3}
+            fontSize="md"
+            fontWeight="600"
             color={primary}
             borderColor={primary}
-            _hover={{ bg: "primary.100", color: "white" }}
+            borderWidth="2px"
+            _hover={{ bg: primary, color: "white", transform: "translateY(-2px)" }}
+            _active={{ transform: "translateY(0)" }}
+            transition="all 0.2s"
           >
             ייבוא נתונים
           </Button>
@@ -73,7 +74,7 @@ const DashboardMain = () => {
       </Flex>
 
       {/* כרטיסי סטטיסטיקה */}
-      <Grid templateColumns="repeat(4, 1fr)" gap={4} mb={4}>
+      <Grid templateColumns="repeat(4, 1fr)" gap={6} mb={8}>
         {[
           { title: "סה״כ פרויקטים", value: 24 },
           { title: "פרויקטים שהסתיימו", value: 10 },
@@ -83,31 +84,41 @@ const DashboardMain = () => {
           <GridItem key={i}>
             <Box
               bg={i === 0 ? primary : cardBg}
-              color={i === 0 ? "white" : "black"}
-              p={4}
-              borderRadius="xl"
+              color={i === 0 ? "white" : textColor}
+              p={6}
+              borderRadius="2xl"
               h="full"
-              boxShadow="sm"
+              boxShadow="md"
+              border="1px solid"
+              borderColor={i === 0 ? "transparent" : borderColor}
+              transition="all 0.3s"
+              _hover={{
+                transform: "translateY(-4px)",
+                boxShadow: "lg",
+              }}
             >
-              <Flex justify="space-between" align="start" mb={2}>
-                <Text fontSize="md" fontWeight="bold">
+              <Flex justify="space-between" align="start" mb={4}>
+                <Text fontSize="sm" fontWeight="600" opacity={i === 0 ? 0.9 : 0.7}>
                   {stat.title}
                 </Text>
                 <IconButton
-                  icon={<Text>↗</Text>}
-                  size="xs"
+                  icon={<Text fontSize="lg">↗</Text>}
+                  size="sm"
                   variant="ghost"
-                  color={i === 0 ? "white" : "gray.600"}
+                  color={i === 0 ? "whiteAlpha.800" : secondaryText}
                   borderRadius="full"
                   aria-label="צפה בפרטים"
+                  _hover={{
+                    bg: i === 0 ? "whiteAlpha.300" : "gray.100",
+                  }}
                 />
               </Flex>
-              <Text fontSize="3xl" fontWeight="bold" mb={1}>
+              <Text fontSize="4xl" fontWeight="bold" mb={3}>
                 {stat.value}
               </Text>
-              <HStack spacing={1} fontSize="xs">
+              <HStack spacing={2} fontSize="sm" opacity={i === 0 ? 0.9 : 0.7}>
                 <Text>📈</Text>
-                <Text>עלייה מהחודש שעבר</Text>
+                <Text fontWeight="500">עלייה מהחודש שעבר</Text>
               </HStack>
             </Box>
           </GridItem>
@@ -117,14 +128,23 @@ const DashboardMain = () => {
       {/* החלק התחתון */}
       <Grid
         templateColumns="repeat(3, 1fr)"
-        gap={4}
-        mb="60px"
+        gap={6}
         alignItems="stretch"
       >
         {/* ניתוח פרויקטים */}
         <GridItem colSpan={1} h="100%">
-          <Box bg={cardBg} p={4} borderRadius="xl" boxShadow="sm" h="100%">
-            <Text fontSize="md" fontWeight="600" mb={4}>
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+          >
+            <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
               ניתוח פרויקטים
             </Text>
             <Flex justify="space-around" align="end" h="140px">
@@ -165,8 +185,18 @@ const DashboardMain = () => {
 
         {/* תזכורות */}
         <GridItem h="100%">
-          <Box bg={cardBg} p={4} borderRadius="xl" boxShadow="sm" h="100%">
-            <Text fontSize="md" fontWeight="600" mb={3}>
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+          >
+            <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
               תזכורות
             </Text>
             <Flex direction="column" justify="space-between" h="100%">
@@ -196,9 +226,19 @@ const DashboardMain = () => {
 
         {/* רשימת פרויקטים */}
         <GridItem h="100%">
-          <Box bg={cardBg} p={4} borderRadius="xl" boxShadow="sm" h="100%">
-            <Flex justify="space-between" align="center" mb={3}>
-              <Text fontSize="md" fontWeight="600">
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+          >
+            <Flex justify="space-between" align="center" mb={6}>
+              <Text fontSize="lg" fontWeight="700" color={textColor}>
                 פרויקטים
               </Text>
               <Button
@@ -240,9 +280,19 @@ const DashboardMain = () => {
 
         {/* שיתוף פעולה צוותי */}
         <GridItem colSpan={2} h="100%">
-          <Box bg={cardBg} p={4} borderRadius="xl" boxShadow="sm" h="100%">
-            <Flex justify="space-between" align="center" mb={3}>
-              <Text fontSize="md" fontWeight="600">
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+          >
+            <Flex justify="space-between" align="center" mb={6}>
+              <Text fontSize="lg" fontWeight="700" color={textColor}>
                 שיתוף פעולה צוותי
               </Text>
               <Button
@@ -298,8 +348,18 @@ const DashboardMain = () => {
 
         {/* התקדמות פרויקטים */}
         <GridItem h="100%">
-          <Box bg={cardBg} p={4} borderRadius="xl" boxShadow="sm" h="100%">
-            <Text fontSize="md" fontWeight="600" mb={3}>
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+          >
+            <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
               התקדמות פרויקטים
             </Text>
             <Flex justify="center" align="center" position="relative" mb={2}>
@@ -342,24 +402,23 @@ const DashboardMain = () => {
                 </Box>
               </Box>
             </Flex>
-            <HStack justify="center" spacing={4} fontSize="xs">
-              <HStack>
-                <Box w="2" h="2" borderRadius="full" bg={primary} />
-                <Text>הושלם</Text>
+            <HStack justify="center" spacing={6} fontSize="sm">
+              <HStack spacing={2}>
+                <Box w="3" h="3" borderRadius="full" bg={primary} />
+                <Text color={secondaryText} fontWeight="500">הושלם</Text>
               </HStack>
-              <HStack>
-                <Box w="2" h="2" borderRadius="full" bg="gray.600" />
-                <Text>בתהליך</Text>
+              <HStack spacing={2}>
+                <Box w="3" h="3" borderRadius="full" bg={secondaryText} />
+                <Text color={secondaryText} fontWeight="500">בתהליך</Text>
               </HStack>
-              <HStack>
+              <HStack spacing={2}>
                 <Box
-                  w="2"
-                  h="2"
+                  w="3"
+                  h="3"
                   borderRadius="full"
                   bg="gray.300"
-                  backgroundImage="repeating-linear-gradient(45deg, transparent, transparent 2px, gray.400 2px, gray.400 4px)"
                 />
-                <Text>בהמתנה</Text>
+                <Text color={secondaryText} fontWeight="500">בהמתנה</Text>
               </HStack>
             </HStack>
           </Box>
