@@ -1,0 +1,80 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: "100vh";
+  /* overflow: hidden;  */
+}
+.pac-container {
+  z-index: 9999;
+  position: absolute !important;
+}
+html {
+  scroll-behavior: smooth;
+}
+div[ref="scannerRef"] {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 100px); /* Adjust height to match mobile screen */
+  overflow: hidden;
+}
+
+/* Remove the max-height from the universal selector */
+* {
+  box-sizing: border-box;
+  /* This ensures padding does not affect the total width or height */
+}
+
+html[dir="rtl"] .flag-dropdown {
+  border: none !important;
+  background-color: transparent !important;
+  left: -15px !important;
+}
+
+html[dir="ltr"] .flag-dropdown {
+  border: none !important;
+  background-color: transaparent !important;
+  /* Any specific styles for LTR languages */
+}
+
+._30Ipg {
+  width: unset;
+}
+
+._1Lxpd,
+._1KMXW {
+  width: 200px !important;
+  margin-right: 10px !important;
+}
+
+.customDatePickerWidth,
+.customDatePickerWidth > div.react-datepicker-wrapper,
+.customDatePickerWidth
+  > div
+  > div.react-datepicker__input-container
+  .customDatePickerWidth
+  > div
+  > div.react-datepicker__input-container
+  input {
+  width: 100%;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* DatePicker z-index fix */
+.date-picker-wrapper .react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker-wrapper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker {
+  z-index: 9999 !important;
+}
