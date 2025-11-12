@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, VStack, HStack, Text, Flex, Divider, useColorModeValue } from "@chakra-ui/react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Package,
   BookOpen,
@@ -14,12 +15,14 @@ import {
   Settings,
   ChevronDown,
   Circle,
+  Home,
 } from "lucide-react";
 
 import { Image } from "@chakra-ui/react";
 import logo from "../../../assets/logo.png";
 
 const Sidebar = () => {
+  const location = useLocation();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const primaryColor = useColorModeValue("primary.100", "primary.300");
@@ -30,122 +33,58 @@ const Sidebar = () => {
 
   const menuItems = [
     {
+      icon: Home,
+      label: "דף הבית",
+      path: "/dashboard/worker/main",
+    },
+    {
       icon: Package,
       label: "פריטים",
-      children: [
-        { label: "ניהול פריטים" },
-        { label: "קטגוריה 1" },
-        { label: "קטגוריה 2" },
-        { label: "קטגוריה 3" },
-      ],
+      path: "/dashboard/worker/products",
     },
     {
       icon: BookOpen,
       label: "קטלוג",
-      children: [{ label: "ראשי" }],
+      path: "/dashboard/worker/catalog",
     },
     {
       icon: Wrench,
       label: "כלים",
-      children: [
-        { label: "כלים ממשלתיים" },
-        { label: "כלים כבדים" },
-        { label: "כלים תעשייתיים" },
-      ],
+      path: "/dashboard/worker/tools",
     },
     {
       icon: Users,
       label: "לקוחות",
-      children: [{ label: "ניהול לקוחות" }],
+      path: "/dashboard/worker/customers",
     },
     {
-      icon: Building2,
-      label: "ספקים",
-      children: [
-        { label: "ספקים" },
-        { label: "בקשה להצעת מחיר מספק", disabled: true },
-        { label: "הזמנה מספק", disabled: true },
-        { label: "קליטת חשבונית מספק", disabled: true },
-      ],
+      icon: Shield,
+      label: "מנויים",
+      path: "/dashboard/worker/subscriptions",
     },
     {
       icon: FileText,
-      label: "מסמכים",
-      children: [
-        { label: "הצעת מחיר" },
-        { label: "תעודת משלוח" },
-        { label: "כרטיס עבודה" },
-        { label: "חשבונית עסקה" },
-        { label: "הזמנת מכירות" },
-        { label: "חשבונית מס" },
-        { label: "חשבונית מס-קבלה" },
-        { label: "תעודת החזרה" },
-        { label: "חשבונית זיכוי" },
-        { label: "קבלה" },
-      ],
+      label: "דוחות",
+      path: "/dashboard/worker/reports",
     },
     {
       icon: Warehouse,
       label: "מחסנים ומלאי",
-      children: [
-        { label: "פורטל מחסנאים" },
-        { label: "ניהול מחסנים" },
-        { label: "תעודת כניסה למלאי" },
-        { label: "תעודת יציאה מהמלאי" },
-        { label: "תעודת העברה בין מחסנים" },
-        { label: "הזמנת רכש" },
-        { label: "ספירת מלאי" },
-      ],
+      path: "/dashboard/worker/warehouse",
     },
     {
       icon: Truck,
-      label: "מסלולי נהגים",
-      children: [{ label: "ניהול מסלולי נהגים" }],
+      label: "מעקב הזמנות",
+      path: "/dashboard/worker/orders",
     },
-    {
-      icon: Shield,
-      label: "ביטוח",
-      children: [
-        { label: "מכתבי שירות" },
-        { label: "קריאות שירות" },
-        { label: "מנויים" },
-      ],
-    },
-    {
-      icon: Briefcase,
-      label: "תפעול",
-      children: [
-        { label: "עובדי משרד" },
-        { label: "סוכני ביטוח" },
-        { label: "חברות ביטוח" },
-        { label: "מתקינים" },
-        { label: "מחסנאים" },
-      ],
-    },
-  ];
-
-  const settingsItems = [
-    { label: "הגדרות פיתוח" },
-    { label: "הגדרות כניסת משתמשים" },
-    { label: "הוספת סטטוסים כללית" },
-    { label: "ניהול קטגוריות פריטים" },
   ];
 
   const MenuItem = React.memo(
-    ({ icon: Icon, label, children }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const isActive = label === "פריטים";
-      const contentRef = useRef(null);
-      const [height, setHeight] = useState(0);
-
-      useEffect(() => {
-        if (contentRef.current) {
-          setHeight(contentRef.current.scrollHeight);
-        }
-      }, [children]);
+    ({ icon: Icon, label, path }) => {
+      const isActive = location.pathname === path;
 
       return (
-        <Box>
+        <NavLink to={path} style={{ textDecoration: "none", width: "100%" }}>
           <Flex
             w="full"
             align="center"
@@ -157,7 +96,6 @@ const Sidebar = () => {
               bg: isActive ? activeBg : hoverBg,
               transform: "translateX(-2px)",
             }}
-            onClick={() => setIsOpen(!isOpen)}
             transition="all 0.2s ease-in-out"
             border="1px solid"
             borderColor={isActive ? borderColor : "transparent"}
@@ -180,69 +118,9 @@ const Sidebar = () => {
                   {label}
                 </Text>
               </HStack>
-
-              <Box
-                transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"}
-                transition="transform 0.2s ease-out"
-              >
-                <ChevronDown size={16} />
-              </Box>
             </HStack>
           </Flex>
-
-          <Box
-            overflow="hidden"
-            height={isOpen ? `${height}px` : "0px"}
-            transition="height 0.25s ease-out"
-          >
-            <VStack
-              ref={contentRef}
-              align="stretch"
-              spacing={1}
-              mt={2}
-              pl={4}
-              opacity={isOpen ? 1 : 0}
-              transition="opacity 0.2s ease-in-out"
-            >
-              {children?.map((child, idx) => {
-                const isChildActive = idx === 0 && label === "פריטים";
-                return (
-                  <HStack
-                    key={idx}
-                    px={4}
-                    py={2}
-                    cursor={child.disabled ? "not-allowed" : "pointer"}
-                    opacity={child.disabled ? 0.5 : 1}
-                    borderRadius="lg"
-                    bg={isChildActive ? primaryColor : "transparent"}
-                    color={isChildActive ? "white" : secondaryTextColor}
-                    _hover={
-                      !child.disabled
-                        ? {
-                            bg: isChildActive ? primaryColor : hoverBg,
-                            transform: "translateX(-2px)",
-                          }
-                        : {}
-                    }
-                    transition="all 0.2s"
-                    spacing={3}
-                  >
-                    <Circle
-                      size={6}
-                      fill={isChildActive ? "white" : secondaryTextColor}
-                    />
-                    <Text
-                      fontSize="sm"
-                      fontWeight={isChildActive ? "600" : "400"}
-                    >
-                      {child.label}
-                    </Text>
-                  </HStack>
-                );
-              })}
-            </VStack>
-          </Box>
-        </Box>
+        </NavLink>
       );
     }
   );
@@ -287,28 +165,6 @@ const Sidebar = () => {
         {menuItems.map((item, index) => (
           <MenuItem key={index} {...item} />
         ))}
-      </VStack>
-
-      <Divider my={6} borderColor={borderColor} />
-
-      {/* Settings Section */}
-      <VStack align="stretch" spacing={2}>
-        <Text
-          fontSize="xs"
-          fontWeight="700"
-          color={secondaryTextColor}
-          mb={2}
-          px={4}
-          textTransform="uppercase"
-          letterSpacing="wide"
-        >
-          הגדרות
-        </Text>
-        <MenuItem
-          icon={Settings}
-          label="הגדרות"
-          children={settingsItems}
-        />
       </VStack>
     </Box>
   );

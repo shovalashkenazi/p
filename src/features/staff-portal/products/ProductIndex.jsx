@@ -16,16 +16,29 @@ import {
   Menu,
   MenuButton,
   MenuList,
-  MenuItem,
+  MenuItem as ChakraMenuItem,
   Flex,
   Heading,
   Input,
   InputGroup,
   InputLeftElement,
   useColorModeValue,
-  Avatar,
+  Divider,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { Search, MoreVertical, Edit, Eye, Trash2, Plus, Filter } from "lucide-react";
+import {
+  Search,
+  MoreVertical,
+  Edit,
+  Eye,
+  Trash2,
+  Plus,
+  Filter,
+  Columns,
+  Download,
+  Upload,
+} from "lucide-react";
+import ProductModal from "./ProductModal";
 
 const ProductIndex = () => {
   const bgColor = useColorModeValue("white", "gray.800");
@@ -35,6 +48,10 @@ const ProductIndex = () => {
   const primary = useColorModeValue("primary.100", "primary.300");
   const hoverBg = useColorModeValue("gray.50", "gray.700");
   const stripedBg = useColorModeValue("gray.50", "gray.900");
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // נתוני דוגמה
   const products = [
@@ -133,6 +150,16 @@ const ProductIndex = () => {
     }
   };
 
+  const handleAddProduct = () => {
+    setSelectedProduct(null);
+    onOpen();
+  };
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    onOpen();
+  };
+
   return (
     <Box p={8} dir="rtl">
       {/* Header */}
@@ -145,59 +172,111 @@ const ProductIndex = () => {
             נהל את מלאי הזכוכיות והמוצרים שלך
           </Text>
         </Box>
-        <Button
-          leftIcon={<Plus size={20} />}
-          bg={primary}
-          color="white"
-          borderRadius="full"
-          px={6}
-          py={6}
-          fontSize="md"
-          fontWeight="600"
-          _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
-          _active={{ transform: "translateY(0)" }}
-          transition="all 0.2s"
-          boxShadow="md"
-        >
-          הוסף פריט חדש
-        </Button>
       </Flex>
 
-      {/* Filters & Search */}
-      <Flex gap={4} mb={6}>
+      {/* Action Bar - Row 1 */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <HStack spacing={3}>
+          <Button
+            leftIcon={<Plus size={20} />}
+            bg={primary}
+            color="white"
+            borderRadius="full"
+            px={6}
+            h="45px"
+            fontSize="md"
+            fontWeight="600"
+            _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
+            _active={{ transform: "translateY(0)" }}
+            transition="all 0.2s"
+            boxShadow="md"
+            onClick={handleAddProduct}
+          >
+            הוסף מוצר
+          </Button>
+          <Button
+            leftIcon={<Filter size={18} />}
+            variant="outline"
+            borderRadius="full"
+            px={6}
+            h="45px"
+            fontSize="sm"
+            fontWeight="600"
+            color={textColor}
+            borderColor={borderColor}
+            borderWidth="1px"
+            _hover={{ bg: hoverBg }}
+          >
+            מסננים
+          </Button>
+          <Button
+            leftIcon={<Columns size={18} />}
+            variant="outline"
+            borderRadius="full"
+            px={6}
+            h="45px"
+            fontSize="sm"
+            fontWeight="600"
+            color={textColor}
+            borderColor={borderColor}
+            borderWidth="1px"
+            _hover={{ bg: hoverBg }}
+          >
+            עמודות
+          </Button>
+        </HStack>
+
+        {/* Search */}
         <InputGroup maxW="400px">
           <InputLeftElement pointerEvents="none" h="full">
             <Search size={18} color={secondaryText} />
           </InputLeftElement>
           <Input
-            placeholder="חיפוש פריטים..."
+            placeholder="חיפוש מהיר..."
             bg={bgColor}
             border="1px solid"
             borderColor={borderColor}
             borderRadius="full"
             h="45px"
             fontSize="sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             _focus={{
               borderColor: primary,
               boxShadow: `0 0 0 1px var(--chakra-colors-primary-100)`,
             }}
           />
         </InputGroup>
-        <Button
-          leftIcon={<Filter size={18} />}
-          variant="outline"
-          borderRadius="full"
-          px={6}
-          h="45px"
-          fontSize="sm"
-          fontWeight="600"
-          color={textColor}
-          borderColor={borderColor}
-          borderWidth="1px"
-          _hover={{ bg: hoverBg }}
-        >
-          סינון
-        </Button>
+      </Flex>
+
+      <Divider my={6} borderColor={borderColor} />
+
+      {/* Action Bar - Row 2 */}
+      <Flex justify="space-between" align="center" mb={6}>
+        <HStack spacing={3}>
+          <Button
+            leftIcon={<Download size={18} />}
+            variant="ghost"
+            size="sm"
+            color={secondaryText}
+            _hover={{ bg: hoverBg, color: primary }}
+          >
+            ייצוא
+          </Button>
+          <Button
+            leftIcon={<Upload size={18} />}
+            variant="ghost"
+            size="sm"
+            color={secondaryText}
+            _hover={{ bg: hoverBg, color: primary }}
+          >
+            ייבוא
+          </Button>
+        </HStack>
+
+        <Text fontSize="sm" color={secondaryText}>
+          {products.length} פריטים במערכת
+        </Text>
       </Flex>
 
       {/* Table Container */}
@@ -221,7 +300,7 @@ const ProductIndex = () => {
                 borderColor={borderColor}
                 py={4}
               >
-                מק"ט
+                מק״ט
               </Th>
               <Th
                 textAlign="right"
@@ -370,28 +449,29 @@ const ProductIndex = () => {
                       _hover={{ bg: hoverBg }}
                     />
                     <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
-                      <MenuItem
+                      <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
                       >
                         צפייה בפריט
-                      </MenuItem>
-                      <MenuItem
+                      </ChakraMenuItem>
+                      <ChakraMenuItem
                         icon={<Edit size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
+                        onClick={() => handleEditProduct(product)}
                       >
                         עריכת פריט
-                      </MenuItem>
-                      <MenuItem
+                      </ChakraMenuItem>
+                      <ChakraMenuItem
                         icon={<Trash2 size={16} />}
                         _hover={{ bg: "red.50" }}
                         color="red.500"
                         fontSize="sm"
                       >
                         מחיקת פריט
-                      </MenuItem>
+                      </ChakraMenuItem>
                     </MenuList>
                   </Menu>
                 </Td>
@@ -430,6 +510,13 @@ const ProductIndex = () => {
           </Button>
         </HStack>
       </Flex>
+
+      {/* Product Modal */}
+      <ProductModal
+        isOpen={isOpen}
+        onClose={onClose}
+        product={selectedProduct}
+      />
     </Box>
   );
 };
