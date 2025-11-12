@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Circle,
   Home,
+  Database,
 } from "lucide-react";
 
 import { Image } from "@chakra-ui/react";
@@ -46,6 +47,11 @@ const Sidebar = () => {
       icon: Briefcase,
       label: "הנהלת חשבונות",
       path: "/dashboard/worker/docs",
+    },
+    {
+      icon: Database,
+      label: "נתוני GOV",
+      path: "/dashboard/worker/gov",
     },
     {
       icon: BookOpen,

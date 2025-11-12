@@ -3,6 +3,7 @@ import ProductIndex from "./features/staff-portal/products/ProductIndex";
 import DashboardLayout from "./features/staff-portal/main/DashboardLayout";
 import DashboardMain from "./features/staff-portal/main/DashboardMain";
 import DocsIndex from "./features/staff-portal/docs/DocsIndex";
+import GovIndex from "./features/staff-portal/gov/GovIndex";
 import CatalogIndex from "./features/staff-portal/catalog/CatalogIndex";
 import ToolsIndex from "./features/staff-portal/tools/ToolsIndex";
 import CustomersIndex from "./features/staff-portal/customers/CustomersIndex";
@@ -23,6 +24,7 @@ function App() {
         <Route path="main" element={<DashboardMain />} />
         <Route path="products" element={<ProductIndex />} />
         <Route path="docs" element={<DocsIndex />} />
+        <Route path="gov" element={<GovIndex />} />
         <Route path="catalog" element={<CatalogIndex />} />
         <Route path="tools" element={<ToolsIndex />} />
         <Route path="customers" element={<CustomersIndex />} />
