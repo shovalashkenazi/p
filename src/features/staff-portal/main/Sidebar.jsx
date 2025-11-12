@@ -43,6 +43,11 @@ const Sidebar = () => {
       path: "/dashboard/worker/products",
     },
     {
+      icon: Briefcase,
+      label: "הנהלת חשבונות",
+      path: "/dashboard/worker/docs",
+    },
+    {
       icon: BookOpen,
       label: "קטלוג",
       path: "/dashboard/worker/catalog",
