@@ -1,11 +1,19 @@
 import axios from "axios";
-import { store } from "../redux/store";
 
 // ✅ Read environment variables correctly using Vite
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
+// ✅ Store reference (will be set after store is created)
+let storeRef = null;
+
+export const setStoreRef = (store) => {
+  storeRef = store;
+};
+
+// ✅ Get token from store
 const getCurrentToken = () => {
-  const state = store.getState();
+  if (!storeRef) return null;
+  const state = storeRef.getState();
   return state.auth?.token || null;
 };
 

@@ -215,7 +215,7 @@ const DashboardMain = () => {
         </Flex>
 
         {/* שורת ניווט מהיר */}
-        <Flex gap={4} p={2} max dir="rtl">
+        <Flex gap={4} p={2} overflowX="auto" dir="rtl">
           {quickNavButtons.map((btn, index) => {
             const Icon = btn.icon;
             return (
@@ -325,6 +325,7 @@ const DashboardMain = () => {
       <Grid templateColumns="repeat(3, 1fr)" gap={6} alignItems="stretch">
         {/* שורה ראשונה: 10 מסמכים אחרונים + נהגים */}
         {/* 10 מסמכים אחרונים */}
+
         <GridItem colSpan={1} h="400px">
           <Box
             bg={cardBg}
@@ -727,47 +728,6 @@ const DashboardMain = () => {
                   <VStack align="start" spacing={0} flex="1">
                     <Text fontSize="sm" fontWeight="700">
                       AnyDesk
-                    </Text>
-                    <Text fontSize="xs" color={secondaryText}>
-                      התחבר לתמיכה מרחוק
-                    </Text>
-                  </VStack>
-                  <Box fontSize="lg">→</Box>
-                </HStack>
-              </Button>
-
-              <Button
-                as="a"
-                href="https://zoom.us/"
-                target="_blank"
-                rel="noopener noreferrer"
-                bg={cardBg}
-                border="1px solid"
-                borderColor={borderColor}
-                borderRadius="xl"
-                h="60px"
-                px={4}
-                justifyContent="flex-start"
-                _hover={{
-                  bg: primary,
-                  color: "white",
-                  borderColor: primary,
-                  transform: "translateX(-4px)",
-                  boxShadow: "lg",
-                }}
-                transition="all 0.2s"
-              >
-                <HStack spacing={3} w="full">
-                  <Box
-                    bg={useColorModeValue("gray.100", "gray.700")}
-                    p={2}
-                    borderRadius="lg"
-                  >
-                    <Video size={20} />
-                  </Box>
-                  <VStack align="start" spacing={0} flex="1">
-                    <Text fontSize="sm" fontWeight="700">
-                      Zoom
                     </Text>
                     <Text fontSize="xs" color={secondaryText}>
                       התחבר לתמיכה מרחוק

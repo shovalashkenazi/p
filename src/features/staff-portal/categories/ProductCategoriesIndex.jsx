@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Box,
   Table,
@@ -22,8 +22,11 @@ import {
   InputLeftElement,
   useColorModeValue,
   Divider,
-  useDisclosure,
   Image,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import {
   Search,
@@ -39,8 +42,33 @@ import {
   RefreshCw,
 } from "lucide-react";
 import ProductCategoryModal from "./ProductCategoryModal";
+import { CategoryTableSkeleton } from "./components/CategoryTableSkeleton";
+import { useCategories, useCategoryActions, useCategoryModal } from "./hooks";
+import { setSearchQuery } from "./services/categoriesSlice";
 
 const ProductCategoriesIndex = () => {
+  const dispatch = useDispatch();
+
+  // ✅ Custom Hooks
+  const {
+    categories,
+    allCategories,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+    filteredTotal,
+  } = useCategories();
+
+  console.log("Rendered ProductCategoriesIndex", categories);
+
+  const { deleteCategory } = useCategoryActions();
+
+  const { isOpen, openCreateModal, openEditModal, closeModal } =
+    useCategoryModal();
+
+  // ✅ Theme colors
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -49,86 +77,9 @@ const ProductCategoriesIndex = () => {
   const hoverBg = useColorModeValue("gray.50", "gray.700");
   const stripedBg = useColorModeValue("gray.50", "gray.900");
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // נתוני דוגמה - 10 קטגוריות
-  const categories = [
-    {
-      id: 1,
-      name: "חלונות",
-      identifier: "CAT-WIN-001",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 2,
-      name: "מראות",
-      identifier: "CAT-MIR-002",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 3,
-      name: "פנסים",
-      identifier: "CAT-LIG-003",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 4,
-      name: "זכוכיות קדמיות",
-      identifier: "CAT-FRG-004",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 5,
-      name: "זכוכיות אחוריות",
-      identifier: "CAT-BAG-005",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 6,
-      name: "זכוכיות צדדיות",
-      identifier: "CAT-SIG-006",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 7,
-      name: "גג פנורמי",
-      identifier: "CAT-SUN-007",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 8,
-      name: "אביזרים",
-      identifier: "CAT-ACC-008",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 9,
-      name: "חלקי חילוף",
-      identifier: "CAT-PAR-009",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 10,
-      name: "חלונות חשמליים",
-      identifier: "CAT-ELW-010",
-      image: "https://via.placeholder.com/50",
-    },
-  ];
-
-  const handleAddCategory = () => {
-    setSelectedCategory(null);
-    onOpen();
-  };
-
-  const handleEditCategory = (category) => {
-    setSelectedCategory(category);
-    onOpen();
-  };
-
-  const handleRefresh = () => {
-    console.log("רענון נתונים...");
+  // ✅ Handle search input
+  const handleSearchChange = (e) => {
+    dispatch(setSearchQuery(e.target.value));
   };
 
   return (
@@ -161,7 +112,7 @@ const ProductCategoriesIndex = () => {
             _active={{ transform: "translateY(0)" }}
             transition="all 0.2s"
             boxShadow="md"
-            onClick={handleAddCategory}
+            onClick={openCreateModal}
           >
             יצירת קטגוריה חדשה
           </Button>
@@ -209,7 +160,8 @@ const ProductCategoriesIndex = () => {
             _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
             _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
-            onClick={handleRefresh}
+            onClick={refetch}
+            isLoading={isFetching}
           >
             רענן נתונים
           </Button>
@@ -228,8 +180,7 @@ const ProductCategoriesIndex = () => {
             borderRadius="full"
             h="45px"
             fontSize="sm"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             _focus={{
               borderColor: primary,
               boxShadow: `0 0 0 1px var(--chakra-colors-primary-100)`,
@@ -264,9 +215,22 @@ const ProductCategoriesIndex = () => {
         </HStack>
 
         <Text fontSize="sm" color={secondaryText}>
-          {categories.length} קטגוריות במערכת
+          {filteredTotal} קטגוריות במערכת
         </Text>
       </Flex>
+
+      {/* ✅ Error Alert */}
+      {isError && (
+        <Alert status="error" borderRadius="lg" mb={6}>
+          <AlertIcon />
+          <AlertTitle>שגיאה!</AlertTitle>
+          <AlertDescription>
+            {error?.data?.message ||
+              error?.message ||
+              "אירעה שגיאה בטעינת הנתונים"}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Table Container */}
       <Box
@@ -347,71 +311,102 @@ const ProductCategoriesIndex = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {categories.map((category, index) => (
-              <Tr
-                key={category.id}
-                bg={index % 2 === 0 ? bgColor : stripedBg}
-                _hover={{ bg: hoverBg }}
-                transition="background 0.2s"
-              >
-                <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" fontWeight="600" color={textColor}>
-                    {category.name}
-                  </Text>
-                </Td>
-                <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText}>
-                    {category.identifier}
-                  </Text>
-                </Td>
-                <Td borderColor={borderColor} py={3}>
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    boxSize="40px"
-                    borderRadius="md"
-                    objectFit="cover"
-                  />
-                </Td>
-                <Td borderColor={borderColor} py={3} textAlign="center">
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      icon={<MoreVertical size={18} />}
-                      variant="ghost"
-                      size="sm"
-                      borderRadius="full"
-                      _hover={{ bg: hoverBg }}
-                    />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
-                      <ChakraMenuItem
-                        icon={<Eye size={16} />}
-                        _hover={{ bg: hoverBg }}
-                        fontSize="sm"
-                      >
-                        צפייה בקטגוריה
-                      </ChakraMenuItem>
-                      <ChakraMenuItem
-                        icon={<Edit size={16} />}
-                        _hover={{ bg: hoverBg }}
-                        fontSize="sm"
-                        onClick={() => handleEditCategory(category)}
-                      >
-                        עריכת קטגוריה
-                      </ChakraMenuItem>
-                      <ChakraMenuItem
-                        icon={<Trash2 size={16} />}
-                        _hover={{ bg: "red.50" }}
-                        color="red.500"
-                        fontSize="sm"
-                      >
-                        מחיקת קטגוריה
-                      </ChakraMenuItem>
-                    </MenuList>
-                  </Menu>
+            {/* ✅ Loading Skeleton */}
+            {isLoading ? (
+              <CategoryTableSkeleton rows={5} />
+            ) : categories.length === 0 ? (
+              <Tr>
+                <Td colSpan={4} textAlign="center" py={8}>
+                  <Text color={secondaryText}>אין קטגוריות להצגה</Text>
                 </Td>
               </Tr>
-            ))}
+            ) : (
+              categories.map((category, index) => (
+                <Tr
+                  key={category._id}
+                  bg={index % 2 === 0 ? bgColor : stripedBg}
+                  _hover={{ bg: hoverBg }}
+                  transition="background 0.2s"
+                >
+                  <Td borderColor={borderColor} py={3}>
+                    <Text fontSize="sm" fontWeight="600" color={textColor}>
+                      {category.label}
+                    </Text>
+                  </Td>
+                  <Td borderColor={borderColor} py={3}>
+                    <Text fontSize="sm" color={secondaryText}>
+                      {category.value}
+                    </Text>
+                  </Td>
+                  <Td borderColor={borderColor} py={3}>
+                    {category.image ? (
+                      <Image
+                        src={category.image}
+                        alt={category.label}
+                        boxSize="40px"
+                        borderRadius="md"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <Box
+                        boxSize="40px"
+                        borderRadius="md"
+                        bg={stripedBg}
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text fontSize="xs" color={secondaryText}>
+                          N/A
+                        </Text>
+                      </Box>
+                    )}
+                  </Td>
+                  <Td borderColor={borderColor} py={3} textAlign="center">
+                    <Menu>
+                      <MenuButton
+                        as={IconButton}
+                        icon={<MoreVertical size={18} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="full"
+                        _hover={{ bg: hoverBg }}
+                      />
+                      <MenuList
+                        dir="rtl"
+                        borderColor={borderColor}
+                        boxShadow="lg"
+                      >
+                        <ChakraMenuItem
+                          icon={<Eye size={16} />}
+                          _hover={{ bg: hoverBg }}
+                          fontSize="sm"
+                        >
+                          צפייה בקטגוריה
+                        </ChakraMenuItem>
+                        <ChakraMenuItem
+                          icon={<Edit size={16} />}
+                          _hover={{ bg: hoverBg }}
+                          fontSize="sm"
+                          onClick={() => openEditModal(category)}
+                        >
+                          עריכת קטגוריה
+                        </ChakraMenuItem>
+                        <ChakraMenuItem
+                          icon={<Trash2 size={16} />}
+                          _hover={{ bg: "red.50" }}
+                          color="red.500"
+                          fontSize="sm"
+                          onClick={() => deleteCategory(category._id)}
+                        >
+                          מחיקת קטגוריה
+                        </ChakraMenuItem>
+                      </MenuList>
+                    </Menu>
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </Box>
@@ -419,7 +414,7 @@ const ProductCategoriesIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-{categories.length} מתוך {categories.length} קטגוריות
+          מציג 1-{filteredTotal} מתוך {allCategories.length} קטגוריות
         </Text>
         <HStack spacing={2}>
           <Button
@@ -447,11 +442,7 @@ const ProductCategoriesIndex = () => {
       </Flex>
 
       {/* Product Category Modal */}
-      <ProductCategoryModal
-        isOpen={isOpen}
-        onClose={onClose}
-        category={selectedCategory}
-      />
+      <ProductCategoryModal isOpen={isOpen} onClose={closeModal} />
     </Box>
   );
 };

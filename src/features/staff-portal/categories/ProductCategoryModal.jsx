@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,10 +15,17 @@ import {
   FormLabel,
   Input,
   VStack,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { Upload } from "lucide-react";
+import { useCategoryActions, useCategoryModal } from "./hooks";
 
-const ProductCategoryModal = ({ isOpen, onClose, category }) => {
+const ProductCategoryModal = ({ isOpen, onClose }) => {
+  const { selectedCategory, isEditMode } = useCategoryModal();
+  const { createCategory, updateCategory, isCreating, isUpdating } =
+    useCategoryActions();
+
+  // ✅ Theme colors
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -27,18 +34,93 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
   const hoverBg = useColorModeValue("gray.50", "gray.700");
   const cardBg = useColorModeValue("gray.50", "gray.700");
 
+  // ✅ Form state
   const [formData, setFormData] = useState({
-    name: category?.name || "",
+    label: "",
+    value: "",
     image: null,
   });
 
-  const handleSave = () => {
-    console.log("שמירת קטגוריה:", formData);
+  const [errors, setErrors] = useState({
+    label: "",
+    value: "",
+  });
+
+  // ✅ Update form when selectedCategory changes
+  useEffect(() => {
+    if (selectedCategory) {
+      setFormData({
+        label: selectedCategory.label || "",
+        value: selectedCategory.value || "",
+        image: selectedCategory.image || null,
+      });
+    } else {
+      setFormData({
+        label: "",
+        value: "",
+        image: null,
+      });
+    }
+    setErrors({ label: "", value: "" });
+  }, [selectedCategory, isOpen]);
+
+  // ✅ Validate form
+  const validateForm = () => {
+    const newErrors = { label: "", value: "" };
+    let isValid = true;
+
+    if (!formData.label || formData.label.trim().length < 2) {
+      newErrors.label = "שם קטגוריה חייב להכיל לפחות 2 תווים";
+      isValid = false;
+    }
+
+    if (!isEditMode && (!formData.value || formData.value.trim().length < 2)) {
+      newErrors.value = "מזהה חייב להכיל לפחות 2 תווים";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // ✅ Handle save (create or update)
+  const handleSave = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    let result;
+    if (isEditMode) {
+      // Update existing category
+      result = await updateCategory({
+        _id: selectedCategory._id,
+        newLabel: formData.label,
+      });
+    } else {
+      // Create new category
+      result = await createCategory({
+        label: formData.label,
+        value: formData.value,
+      });
+    }
+
+    // Close modal on success
+    if (result.success) {
+      handleClose();
+    }
+  };
+
+  // ✅ Handle close
+  const handleClose = () => {
+    setFormData({ label: "", value: "", image: null });
+    setErrors({ label: "", value: "" });
     onClose();
   };
 
+  const isLoading = isCreating || isUpdating;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl" dir="rtl">
+    <Modal isOpen={isOpen} onClose={handleClose} size="2xl" dir="rtl">
       <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
       <ModalContent
         maxW="700px"
@@ -58,7 +140,7 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
           <HStack justify="space-between">
             <Box>
               <Text fontSize="2xl" fontWeight="700" color={textColor}>
-                {category ? "עריכת קטגוריה" : "יצירת קטגוריה חדשה"}
+                {isEditMode ? "עריכת קטגוריה" : "יצירת קטגוריה חדשה"}
               </Text>
               <Text fontSize="sm" color={secondaryText} mt={1}>
                 הזן את פרטי הקטגוריה
@@ -77,15 +159,15 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
         <ModalBody p={8}>
           <VStack spacing={6} align="stretch">
             {/* שם הקטגוריה */}
-            <FormControl isRequired>
+            <FormControl isRequired isInvalid={!!errors.label}>
               <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                 שם קטגוריה
               </FormLabel>
               <Input
                 placeholder="הזן שם קטגוריה"
-                value={formData.name}
+                value={formData.label}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, label: e.target.value })
                 }
                 borderColor={borderColor}
                 _focus={{
@@ -93,7 +175,30 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
                   boxShadow: `0 0 0 1px ${primary}`,
                 }}
               />
+              {errors.label && <FormErrorMessage>{errors.label}</FormErrorMessage>}
             </FormControl>
+
+            {/* מזהה קטגוריה (רק ביצירה) */}
+            {!isEditMode && (
+              <FormControl isRequired isInvalid={!!errors.value}>
+                <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                  מזהה קטגוריה
+                </FormLabel>
+                <Input
+                  placeholder="הזן מזהה קטגוריה (לדוגמה: CAT-001)"
+                  value={formData.value}
+                  onChange={(e) =>
+                    setFormData({ ...formData, value: e.target.value })
+                  }
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: primary,
+                    boxShadow: `0 0 0 1px ${primary}`,
+                  }}
+                />
+                {errors.value && <FormErrorMessage>{errors.value}</FormErrorMessage>}
+              </FormControl>
+            )}
 
             {/* העלאת תמונה */}
             <FormControl>
@@ -138,6 +243,8 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
               borderRadius="full"
               _hover={{ bg: "primary.200" }}
               onClick={handleSave}
+              isLoading={isLoading}
+              loadingText="שומר..."
             >
               שמירה
             </Button>
@@ -150,7 +257,8 @@ const ProductCategoryModal = ({ isOpen, onClose, category }) => {
               fontWeight="600"
               borderRadius="full"
               _hover={{ bg: hoverBg }}
-              onClick={onClose}
+              onClick={handleClose}
+              isDisabled={isLoading}
             >
               ביטול
             </Button>
