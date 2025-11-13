@@ -32,6 +32,10 @@ import {
   BarChart3,
   Warehouse,
   Package,
+  Monitor,
+  Video,
+  MessageSquare,
+  Eye,
 } from "lucide-react";
 
 const DashboardMain = () => {
@@ -250,7 +254,7 @@ const DashboardMain = () => {
       </Box>
 
       {/* כרטיסי סטטיסטיקה */}
-      <Grid templateColumns="repeat(4, 1fr)" gap={6} mb={8}>
+      <Grid templateColumns="repeat(4, 1fr)" gap={4} mb={6}>
         {[
           { title: "תקבולים", value: 5000 },
           { title: "הכנסות", value: 8000 },
@@ -261,29 +265,29 @@ const DashboardMain = () => {
             <Box
               bg={i === 0 ? primary : cardBg}
               color={i === 0 ? "white" : textColor}
-              p={6}
-              borderRadius="2xl"
+              p={3}
+              borderRadius="xl"
               h="full"
-              boxShadow="md"
+              boxShadow="sm"
               border="1px solid"
               borderColor={i === 0 ? "transparent" : borderColor}
               transition="all 0.3s"
               _hover={{
-                transform: "translateY(-4px)",
-                boxShadow: "lg",
+                transform: "translateY(-2px)",
+                boxShadow: "md",
               }}
             >
-              <Flex justify="space-between" align="start" mb={4}>
+              <Flex justify="space-between" align="center" mb={1}>
                 <Text
-                  fontSize="sm"
+                  fontSize="xs"
                   fontWeight="600"
                   opacity={i === 0 ? 0.9 : 0.7}
                 >
                   {stat.title}
                 </Text>
                 <IconButton
-                  icon={<Text fontSize="lg">↗</Text>}
-                  size="sm"
+                  icon={<Text fontSize="sm">↗</Text>}
+                  size="xs"
                   variant="ghost"
                   color={i === 0 ? "whiteAlpha.800" : secondaryText}
                   borderRadius="full"
@@ -293,10 +297,10 @@ const DashboardMain = () => {
                   }}
                 />
               </Flex>
-              <Text fontSize="4xl" fontWeight="bold" mb={3}>
+              <Text fontSize="2xl" fontWeight="bold" mb={1}>
                 {stat.value} ₪
               </Text>
-              <HStack spacing={2} fontSize="sm" opacity={i === 0 ? 0.9 : 0.7}>
+              <HStack spacing={1} fontSize="10px" opacity={i === 0 ? 0.9 : 0.7}>
                 <Text>📈</Text>
                 <Text fontWeight="500">עלייה מהחודש שעבר</Text>
               </HStack>
@@ -307,7 +311,7 @@ const DashboardMain = () => {
 
       {/* החלק התחתון */}
       <Grid templateColumns="repeat(3, 1fr)" gap={6} alignItems="stretch">
-        {/* ניתוח פרויקטים */}
+        {/* 10 מסמכים אחרונים */}
         <GridItem colSpan={1} h="100%">
           <Box
             bg={cardBg}
@@ -319,47 +323,151 @@ const DashboardMain = () => {
             h="100%"
             transition="all 0.3s"
             _hover={{ boxShadow: "lg" }}
+            display="flex"
+            flexDirection="column"
           >
-            <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
+            <Text fontSize="lg" fontWeight="700" color={textColor} mb={4}>
               10 מסמכים אחרונים
             </Text>
-            <Flex justify="space-around" align="end" h="140px">
-              {["א", "ב", "ג", "ד", "ה", "ו", "ש"].map((day, index) => {
-                const heights = [40, 70, 75, 90, 60, 50, 45];
-                const isActive = index >= 1 && index <= 3;
-                return (
-                  <VStack key={day} spacing={1}>
-                    <Box
-                      w="28px"
-                      h={`${heights[index]}%`}
-                      bg={isActive ? primary : "gray.200"}
-                      borderRadius="full"
-                      position="relative"
+            <Box
+              flex="1"
+              overflowY="auto"
+              css={{
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#CBD5E0",
+                  borderRadius: "10px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  background: "#A0AEC0",
+                },
+              }}
+            >
+              <Table variant="simple" size="sm">
+                <Thead position="sticky" top={0} bg={cardBg} zIndex={1}>
+                  <Tr>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
                     >
-                      {index === 2 && (
+                      תאריך
+                    </Th>
+                    {/* לקוח */}
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      לקוח
+                    </Th>
+
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      סטטוס
+                    </Th>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      סוג מסמך
+                    </Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {recentDocuments.map((doc, index) => (
+                    <Tr
+                      key={doc.id}
+                      bg={
+                        index % 2 === 0
+                          ? cardBg
+                          : useColorModeValue("gray.50", "gray.900")
+                      }
+                      _hover={{ bg: hoverBg }}
+                      transition="background 0.2s"
+                    >
+                      <Td
+                        borderColor={borderColor}
+                        py={2}
+                        px={2}
+                        fontSize="11px"
+                      >
+                        {doc.date}
+                      </Td>
+
+                      <Td
+                        borderColor={borderColor}
+                        py={2}
+                        px={2}
+                        fontSize="11px"
+                        fontWeight="600"
+                      >
+                        {doc.customer}
+                      </Td>
+
+                      <Td borderColor={borderColor} py={2} px={2}>
                         <Badge
-                          position="absolute"
-                          top="-14px"
-                          left="50%"
-                          transform="translateX(-50%)"
-                          colorScheme="orange"
-                          fontSize="8px"
+                          colorScheme={getStatusColor(doc.status)}
+                          borderRadius="full"
+                          px={2}
+                          py={0.5}
+                          fontSize="9px"
+                          fontWeight="600"
                         >
-                          +4%
+                          {doc.status}
                         </Badge>
-                      )}
-                    </Box>
-                    <Text fontSize="xs" color="gray.500">
-                      {day}
-                    </Text>
-                  </VStack>
-                );
-              })}
-            </Flex>
+                      </Td>
+                      <Td
+                        borderColor={borderColor}
+                        py={2}
+                        px={2}
+                        fontSize="11px"
+                        fontWeight="600"
+                        whiteSpace="nowrap"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        maxW="120px"
+                      >
+                        {doc.type}
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </Box>
           </Box>
         </GridItem>
 
-        {/* תזכורות */}
+        {/* תמיכה מרחוק */}
         <GridItem h="100%">
           <Box
             bg={cardBg}
@@ -373,30 +481,173 @@ const DashboardMain = () => {
             _hover={{ boxShadow: "lg" }}
           >
             <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
-              תזכורות
+              תמיכה מרחוק
             </Text>
-            <Flex direction="column" justify="space-between" h="100%">
-              <VStack align="stretch" spacing={3}>
-                <Box>
-                  <Text fontWeight="600" mb={1}>
-                    פגישה עם חברת Arc
-                  </Text>
-                  <Text fontSize="sm" color="gray.500" mb={2}>
-                    שעה: 14:00 - 16:00
-                  </Text>
-                  <Button
-                    bg={primary}
-                    color="white"
-                    size="sm"
-                    borderRadius="full"
-                    w="full"
-                    _hover={{ bg: "primary.200" }}
+            <VStack align="stretch" spacing={3}>
+              <Button
+                as="a"
+                href="https://anydesk.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                bg={cardBg}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="xl"
+                h="60px"
+                px={4}
+                justifyContent="flex-start"
+                _hover={{
+                  bg: primary,
+                  color: "white",
+                  borderColor: primary,
+                  transform: "translateX(-4px)",
+                  boxShadow: "lg",
+                }}
+                transition="all 0.2s"
+              >
+                <HStack spacing={3} w="full">
+                  <Box
+                    bg={useColorModeValue("gray.100", "gray.700")}
+                    p={2}
+                    borderRadius="lg"
                   >
-                    🎥 התחל פגישה
-                  </Button>
-                </Box>
-              </VStack>
-            </Flex>
+                    <Monitor size={20} />
+                  </Box>
+                  <VStack align="start" spacing={0} flex="1">
+                    <Text fontSize="sm" fontWeight="700">
+                      AnyDesk
+                    </Text>
+                    <Text fontSize="xs" color={secondaryText}>
+                      התחבר לתמיכה מרחוק
+                    </Text>
+                  </VStack>
+                  <Box fontSize="lg">→</Box>
+                </HStack>
+              </Button>
+
+              <Button
+                as="a"
+                href="https://zoom.us/"
+                target="_blank"
+                rel="noopener noreferrer"
+                bg={cardBg}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="xl"
+                h="60px"
+                px={4}
+                justifyContent="flex-start"
+                _hover={{
+                  bg: primary,
+                  color: "white",
+                  borderColor: primary,
+                  transform: "translateX(-4px)",
+                  boxShadow: "lg",
+                }}
+                transition="all 0.2s"
+              >
+                <HStack spacing={3} w="full">
+                  <Box
+                    bg={useColorModeValue("gray.100", "gray.700")}
+                    p={2}
+                    borderRadius="lg"
+                  >
+                    <Video size={20} />
+                  </Box>
+                  <VStack align="start" spacing={0} flex="1">
+                    <Text fontSize="sm" fontWeight="700">
+                      Zoom
+                    </Text>
+                    <Text fontSize="xs" color={secondaryText}>
+                      התחבר לתמיכה מרחוק
+                    </Text>
+                  </VStack>
+                  <Box fontSize="lg">→</Box>
+                </HStack>
+              </Button>
+
+              <Button
+                as="a"
+                href="https://teams.microsoft.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                bg={cardBg}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="xl"
+                h="60px"
+                px={4}
+                justifyContent="flex-start"
+                _hover={{
+                  bg: primary,
+                  color: "white",
+                  borderColor: primary,
+                  transform: "translateX(-4px)",
+                  boxShadow: "lg",
+                }}
+                transition="all 0.2s"
+              >
+                <HStack spacing={3} w="full">
+                  <Box
+                    bg={useColorModeValue("gray.100", "gray.700")}
+                    p={2}
+                    borderRadius="lg"
+                  >
+                    <MessageSquare size={20} />
+                  </Box>
+                  <VStack align="start" spacing={0} flex="1">
+                    <Text fontSize="sm" fontWeight="700">
+                      Teams
+                    </Text>
+                    <Text fontSize="xs" color={secondaryText}>
+                      התחבר לתמיכה מרחוק
+                    </Text>
+                  </VStack>
+                  <Box fontSize="lg">→</Box>
+                </HStack>
+              </Button>
+
+              <Button
+                as="a"
+                href="https://www.teamviewer.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                bg={cardBg}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="xl"
+                h="60px"
+                px={4}
+                justifyContent="flex-start"
+                _hover={{
+                  bg: primary,
+                  color: "white",
+                  borderColor: primary,
+                  transform: "translateX(-4px)",
+                  boxShadow: "lg",
+                }}
+                transition="all 0.2s"
+              >
+                <HStack spacing={3} w="full">
+                  <Box
+                    bg={useColorModeValue("gray.100", "gray.700")}
+                    p={2}
+                    borderRadius="lg"
+                  >
+                    <Eye size={20} />
+                  </Box>
+                  <VStack align="start" spacing={0} flex="1">
+                    <Text fontSize="sm" fontWeight="700">
+                      TeamViewer
+                    </Text>
+                    <Text fontSize="xs" color={secondaryText}>
+                      התחבר לתמיכה מרחוק
+                    </Text>
+                  </VStack>
+                  <Box fontSize="lg">→</Box>
+                </HStack>
+              </Button>
+            </VStack>
           </Box>
         </GridItem>
 
