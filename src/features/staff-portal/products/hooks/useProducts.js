@@ -92,7 +92,7 @@ export const useProducts = () => {
     pageSize,
   ]);
 
-  // ✅ Fetch products from RTK Query with selectFromResult optimization
+  // ✅ Fetch products from RTK Query with advanced optimizations
   const {
     data,
     isLoading,
@@ -101,6 +101,10 @@ export const useProducts = () => {
     error,
     refetch,
   } = useGetProductsQuery(queryParams, {
+    // ✅ Keep previous data while fetching new data (prevents table "jumping")
+    keepPreviousData: true,
+    // ✅ Refetch only when necessary
+    refetchOnMountOrArgChange: 30, // 30 seconds cache
     // ✅ selectFromResult prevents re-renders when other query data changes
     selectFromResult: ({ data, isLoading, isFetching, isError, error }) => ({
       data,

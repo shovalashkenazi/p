@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -50,8 +50,8 @@ const ProductModal = ({ isOpen, onClose }) => {
 
   const [tabIndex, setTabIndex] = useState(0);
 
-  // ✅ Form state
-  const [formData, setFormData] = useState({
+  // ✅ Memoized default form state (created only once)
+  const defaultFormData = useMemo(() => ({
     // כללי
     name: "",
     catalogNumber: "",
@@ -90,7 +90,10 @@ const ProductModal = ({ isOpen, onClose }) => {
     // הערות
     notes: "",
     attachments: [],
-  });
+  }), []);
+
+  // ✅ Form state
+  const [formData, setFormData] = useState(defaultFormData);
 
   const [errors, setErrors] = useState({
     name: "",
@@ -99,81 +102,53 @@ const ProductModal = ({ isOpen, onClose }) => {
     price: "",
   });
 
-  // ✅ Update form when selectedProduct changes
+  // ✅ Memoize form data from selectedProduct (prevents recreation)
+  const initialFormData = useMemo(() => {
+    if (!selectedProduct) return defaultFormData;
+
+    return {
+      name: selectedProduct.name || "",
+      catalogNumber: selectedProduct.catalogNumber || "",
+      category: selectedProduct.category || "",
+      description: selectedProduct.description || "",
+      barcode: selectedProduct.barcode || "",
+      isActive: selectedProduct.isActive ?? true,
+      isAvailable: selectedProduct.isAvailable ?? true,
+      isFeatured: selectedProduct.isFeatured ?? false,
+      price: selectedProduct.price || 0,
+      costPrice: selectedProduct.costPrice || 0,
+      taxRate: selectedProduct.taxRate || 17,
+      currency: selectedProduct.currency || "ILS",
+      stock: selectedProduct.stock || 0,
+      minStock: selectedProduct.minStock || 5,
+      maxStock: selectedProduct.maxStock || 100,
+      warehouse: selectedProduct.warehouse || "",
+      lowStockAlert: selectedProduct.lowStockAlert || false,
+      outOfStockAlert: selectedProduct.outOfStockAlert || false,
+      autoReorder: selectedProduct.autoReorder || false,
+      compatibleModels: selectedProduct.compatibleModels || [],
+      width: selectedProduct.width || "",
+      height: selectedProduct.height || "",
+      thickness: selectedProduct.thickness || "",
+      weight: selectedProduct.weight || "",
+      images: selectedProduct.images || [],
+      supplier: selectedProduct.supplier || "",
+      supplierSku: selectedProduct.supplierSku || "",
+      minOrderQuantity: selectedProduct.minOrderQuantity || 1,
+      deliveryTime: selectedProduct.deliveryTime || 3,
+      notes: selectedProduct.notes || "",
+      attachments: selectedProduct.attachments || [],
+    };
+  }, [selectedProduct, defaultFormData]);
+
+  // ✅ Update form when modal opens (lighter useEffect)
   useEffect(() => {
-    if (selectedProduct) {
-      setFormData({
-        name: selectedProduct.name || "",
-        catalogNumber: selectedProduct.catalogNumber || "",
-        category: selectedProduct.category || "",
-        description: selectedProduct.description || "",
-        barcode: selectedProduct.barcode || "",
-        isActive: selectedProduct.isActive ?? true,
-        isAvailable: selectedProduct.isAvailable ?? true,
-        isFeatured: selectedProduct.isFeatured ?? false,
-        price: selectedProduct.price || 0,
-        costPrice: selectedProduct.costPrice || 0,
-        taxRate: selectedProduct.taxRate || 17,
-        currency: selectedProduct.currency || "ILS",
-        stock: selectedProduct.stock || 0,
-        minStock: selectedProduct.minStock || 5,
-        maxStock: selectedProduct.maxStock || 100,
-        warehouse: selectedProduct.warehouse || "",
-        lowStockAlert: selectedProduct.lowStockAlert || false,
-        outOfStockAlert: selectedProduct.outOfStockAlert || false,
-        autoReorder: selectedProduct.autoReorder || false,
-        compatibleModels: selectedProduct.compatibleModels || [],
-        width: selectedProduct.width || "",
-        height: selectedProduct.height || "",
-        thickness: selectedProduct.thickness || "",
-        weight: selectedProduct.weight || "",
-        images: selectedProduct.images || [],
-        supplier: selectedProduct.supplier || "",
-        supplierSku: selectedProduct.supplierSku || "",
-        minOrderQuantity: selectedProduct.minOrderQuantity || 1,
-        deliveryTime: selectedProduct.deliveryTime || 3,
-        notes: selectedProduct.notes || "",
-        attachments: selectedProduct.attachments || [],
-      });
-    } else {
-      // Reset form for new product
-      setFormData({
-        name: "",
-        catalogNumber: "",
-        category: "",
-        description: "",
-        barcode: "",
-        isActive: true,
-        isAvailable: true,
-        isFeatured: false,
-        price: 0,
-        costPrice: 0,
-        taxRate: 17,
-        currency: "ILS",
-        stock: 0,
-        minStock: 5,
-        maxStock: 100,
-        warehouse: "",
-        lowStockAlert: false,
-        outOfStockAlert: false,
-        autoReorder: false,
-        compatibleModels: [],
-        width: "",
-        height: "",
-        thickness: "",
-        weight: "",
-        images: [],
-        supplier: "",
-        supplierSku: "",
-        minOrderQuantity: 1,
-        deliveryTime: 3,
-        notes: "",
-        attachments: [],
-      });
+    if (isOpen) {
+      setFormData(initialFormData);
+      setErrors({ name: "", catalogNumber: "", category: "", price: "" });
+      setTabIndex(0);
     }
-    setErrors({ name: "", catalogNumber: "", category: "", price: "" });
-    setTabIndex(0);
-  }, [selectedProduct, isOpen]);
+  }, [isOpen, initialFormData]);
 
   // ✅ Validate form
   const validateForm = () => {
@@ -204,8 +179,17 @@ const ProductModal = ({ isOpen, onClose }) => {
     return isValid;
   };
 
-  // ✅ Handle save (create or update)
-  const handleSave = async () => {
+  // ✅ Memoized close handler
+  const handleClose = useCallback(() => {
+    // Use defaultFormData instead of recreating object
+    setFormData(defaultFormData);
+    setErrors({ name: "", catalogNumber: "", category: "", price: "" });
+    setTabIndex(0);
+    onClose();
+  }, [defaultFormData, onClose]);
+
+  // ✅ Memoized save handler
+  const handleSave = useCallback(async () => {
     if (!validateForm()) {
       setTabIndex(0); // Go to first tab if validation fails
       return;
@@ -227,49 +211,32 @@ const ProductModal = ({ isOpen, onClose }) => {
     if (result.success) {
       handleClose();
     }
-  };
+  }, [formData, isEditMode, selectedProduct, updateProduct, createProduct, handleClose]);
 
-  // ✅ Handle close
-  const handleClose = () => {
-    setFormData({
-      name: "",
-      catalogNumber: "",
-      category: "",
-      description: "",
-      barcode: "",
-      isActive: true,
-      isAvailable: true,
-      isFeatured: false,
-      price: 0,
-      costPrice: 0,
-      taxRate: 17,
-      currency: "ILS",
-      stock: 0,
-      minStock: 5,
-      maxStock: 100,
-      warehouse: "",
-      lowStockAlert: false,
-      outOfStockAlert: false,
-      autoReorder: false,
-      compatibleModels: [],
-      width: "",
-      height: "",
-      thickness: "",
-      weight: "",
-      images: [],
-      supplier: "",
-      supplierSku: "",
-      minOrderQuantity: 1,
-      deliveryTime: 3,
-      notes: "",
-      attachments: [],
-    });
-    setErrors({ name: "", catalogNumber: "", category: "", price: "" });
-    setTabIndex(0);
-    onClose();
-  };
+  // ✅ Memoized form handlers (prevent inline function recreation)
+  const handleInputChange = useCallback((field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleCheckboxChange = useCallback((field, checked) => {
+    setFormData(prev => ({ ...prev, [field]: checked }));
+  }, []);
+
+  // ✅ Memoized financial calculations (only recalculate when price/cost changes)
+  const financialSummary = useMemo(() => {
+    const profit = formData.price - formData.costPrice;
+    const profitPercent = formData.costPrice > 0
+      ? (((formData.price - formData.costPrice) / formData.costPrice) * 100).toFixed(1)
+      : 0;
+    const priceWithTax = (formData.price * (1 + formData.taxRate / 100)).toFixed(2);
+
+    return { profit, profitPercent, priceWithTax };
+  }, [formData.price, formData.costPrice, formData.taxRate]);
 
   const isLoading = isCreating || isUpdating;
+
+  // ✅ Early return if not open (don't render heavy modal until needed)
+  if (!isOpen) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="6xl" scrollBehavior="inside">
@@ -534,21 +501,19 @@ const ProductModal = ({ isOpen, onClose }) => {
                       <Box>
                         <Text fontSize="xs" color={secondaryText}>רווח ליחידה</Text>
                         <Text fontSize="lg" fontWeight="bold" color={primary}>
-                          ₪{(formData.price - formData.costPrice).toFixed(2)}
+                          ₪{financialSummary.profit.toFixed(2)}
                         </Text>
                       </Box>
                       <Box>
                         <Text fontSize="xs" color={secondaryText}>אחוז רווח</Text>
                         <Text fontSize="lg" fontWeight="bold" color={primary}>
-                          {formData.costPrice > 0
-                            ? ((((formData.price - formData.costPrice) / formData.costPrice) * 100).toFixed(1))
-                            : 0}%
+                          {financialSummary.profitPercent}%
                         </Text>
                       </Box>
                       <Box>
                         <Text fontSize="xs" color={secondaryText}>מחיר כולל מע״מ</Text>
                         <Text fontSize="lg" fontWeight="bold" color={textColor}>
-                          ₪{(formData.price * (1 + formData.taxRate / 100)).toFixed(2)}
+                          ₪{financialSummary.priceWithTax}
                         </Text>
                       </Box>
                     </Grid>

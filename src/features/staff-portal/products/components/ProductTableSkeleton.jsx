@@ -1,4 +1,5 @@
 // src/features/staff-portal/products/components/ProductTableSkeleton.jsx
+import React, { memo } from "react";
 import {
   Tr,
   Td,
@@ -9,9 +10,10 @@ import {
 } from "@chakra-ui/react";
 
 /**
- * ✅ Skeleton loader for product table rows
+ * ✅ Memoized Skeleton loader for product table rows
+ * Prevents unnecessary re-renders during loading state
  */
-export const ProductTableSkeleton = ({ rows = 5 }) => {
+export const ProductTableSkeleton = memo(({ rows = 5 }) => {
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
@@ -58,4 +60,4 @@ export const ProductTableSkeleton = ({ rows = 5 }) => {
         ))}
     </>
   );
-};
+});

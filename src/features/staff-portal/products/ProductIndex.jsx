@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, lazy, Suspense, useDeferredValue, startTransition } from "react";
 import {
   Box,
   Table,
@@ -17,11 +17,14 @@ import {
   HStack,
   Button,
   Td,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
-import ProductModal from "./ProductModal";
-import { ProductTableSkeleton } from "./components/ProductTableSkeleton";
+
+// ✅ Lazy load modal for better initial load performance
+const ProductModal = lazy(() => import("./ProductModal"));
 import ProductFiltersBar from "./components/ProductFiltersBar";
-import ProductTableRow from "./components/ProductTableRow";
+import ProductTable from "./components/ProductTable";
 import {
   useProducts,
   useProductActions,
@@ -51,6 +54,10 @@ const ProductIndex = () => {
     refetch,
     currentPage,
   } = useProducts();
+
+  // ✅ Defer rendering of products list to prevent blocking
+  // This allows urgent UI updates (like pagination clicks) to render first
+  const deferredProducts = useDeferredValue(products);
 
   const { deleteProduct } = useProductActions();
 
@@ -111,14 +118,19 @@ const ProductIndex = () => {
   );
 
   const handleRefresh = useCallback(() => {
-    refetch();
+    // Mark refetch as low-priority to not block UI
+    startTransition(() => {
+      refetch();
+    });
   }, [refetch]);
 
-  // ✅ Memoized column visibility check
-  const isColumnVisible = useCallback(
-    (columnName) => selectedColumns.includes(columnName),
-    [selectedColumns]
-  );
+  // ✅ Memoized pagination click handler with startTransition
+  const handlePageClick = useCallback((page) => {
+    // Mark pagination as low-priority update
+    startTransition(() => {
+      setCurrentPage(page);
+    });
+  }, [setCurrentPage]);
 
   // ✅ Memoized pagination buttons (only recalculate when totalPages/currentPage changes)
   const paginationButtons = useMemo(() => {
@@ -205,100 +217,25 @@ const ProductIndex = () => {
         overflow="hidden"
         boxShadow="sm"
       >
-        <Box overflowX="auto">
-          <Table variant="simple">
-            <Thead bg={stripedBg}>
-              <Tr>
-                {isColumnVisible("image") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      תמונה
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("name") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      שם מוצר
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("catalogNumber") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      מק"ט
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("category") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      קטגוריה
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("price") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      מחיר
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("stock") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      מלאי
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("supplier") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      ספק
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("isActive") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      סטטוס
-                    </Text>
-                  </Th>
-                )}
-                {isColumnVisible("actions") && (
-                  <Th>
-                    <Text fontSize="xs" fontWeight="700" color={textColor}>
-                      פעולות
-                    </Text>
-                  </Th>
-                )}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {isLoading ? (
-                <ProductTableSkeleton rows={10} />
-              ) : products.length === 0 ? (
-                <Tr>
-                  <Td colSpan={9} textAlign="center" py={10}>
-                    <Text color={secondaryText} fontSize="lg">
-                      לא נמצאו מוצרים
-                    </Text>
-                  </Td>
-                </Tr>
-              ) : (
-                // ✅ Optimized rows with React.memo
-                products.map((product) => (
-                  <ProductTableRow
-                    key={product._id}
-                    product={product}
-                    selectedColumns={selectedColumns}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))
-              )}
-            </Tbody>
-          </Table>
+        <Box
+          overflowX="auto"
+          sx={{
+            // ✅ CSS optimization hints for smooth scrolling and rendering
+            willChange: isFetching ? 'contents' : 'auto',
+            contain: 'layout style paint',
+          }}
+        >
+          {/* ✅ Memoized table component with deferred products */}
+          <ProductTable
+            products={deferredProducts}
+            selectedColumns={selectedColumns}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            textColor={textColor}
+            stripedBg={stripedBg}
+            secondaryText={secondaryText}
+          />
         </Box>
 
         {/* Pagination */}
@@ -317,7 +254,7 @@ const ProductIndex = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setCurrentPage(currentPage - 1)}
+                onClick={() => handlePageClick(currentPage - 1)}
                 isDisabled={currentPage === 1}
                 borderRadius="lg"
               >
@@ -332,7 +269,7 @@ const ProductIndex = () => {
                     variant={page === currentPage ? "solid" : "outline"}
                     bg={page === currentPage ? primary : "transparent"}
                     color={page === currentPage ? "white" : textColor}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageClick(page)}
                     borderRadius="lg"
                     minW="40px"
                   >
@@ -343,7 +280,7 @@ const ProductIndex = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setCurrentPage(currentPage + 1)}
+                onClick={() => handlePageClick(currentPage + 1)}
                 isDisabled={currentPage === totalPages}
                 borderRadius="lg"
               >
@@ -354,8 +291,14 @@ const ProductIndex = () => {
         )}
       </Box>
 
-      {/* Product Modal */}
-      <ProductModal isOpen={isOpen} onClose={closeModal} />
+      {/* Product Modal - wrapped in Suspense for lazy loading */}
+      <Suspense fallback={
+        <Center>
+          <Spinner size="xl" color={primary} />
+        </Center>
+      }>
+        <ProductModal isOpen={isOpen} onClose={closeModal} />
+      </Suspense>
     </Box>
   );
 };
