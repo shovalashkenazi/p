@@ -16,29 +16,43 @@ import {
   setPageSize,
   toggleColumn,
 } from "../services/productSlice";
+import {
+  selectFilters,
+  selectPagination,
+  selectSelectedColumns,
+  selectSearchQuery,
+  selectSelectedCategory,
+  selectVehicleNumber,
+  selectChassisNumber,
+  selectManufacturer,
+  selectModel,
+  selectYear,
+  selectSubModel,
+  selectIsActiveFilter,
+  selectCurrentPage,
+  selectPageSize,
+} from "../services/productSelectors";
 
 /**
  * ✅ Hook for managing product filters and pagination
- * OPTIMIZED: Uses useCallback to prevent function recreation
+ * OPTIMIZED: Uses memoized selectors to prevent unnecessary re-renders
  */
 export const useProductFilters = () => {
   const dispatch = useDispatch();
 
-  // ✅ Get filter state from Redux (using shallow equal selector)
-  const filters = useSelector((state) => ({
-    searchQuery: state.products.searchQuery,
-    selectedCategory: state.products.selectedCategory,
-    vehicleNumber: state.products.vehicleNumber,
-    chassisNumber: state.products.chassisNumber,
-    manufacturer: state.products.manufacturer,
-    model: state.products.model,
-    year: state.products.year,
-    subModel: state.products.subModel,
-    isActiveFilter: state.products.isActiveFilter,
-    currentPage: state.products.currentPage,
-    pageSize: state.products.pageSize,
-    selectedColumns: state.products.selectedColumns,
-  }));
+  // ✅ Use memoized selectors (returns stable references)
+  const searchQuery = useSelector(selectSearchQuery);
+  const selectedCategory = useSelector(selectSelectedCategory);
+  const vehicleNumber = useSelector(selectVehicleNumber);
+  const chassisNumber = useSelector(selectChassisNumber);
+  const manufacturer = useSelector(selectManufacturer);
+  const model = useSelector(selectModel);
+  const year = useSelector(selectYear);
+  const subModel = useSelector(selectSubModel);
+  const isActiveFilter = useSelector(selectIsActiveFilter);
+  const currentPage = useSelector(selectCurrentPage);
+  const pageSize = useSelector(selectPageSize);
+  const selectedColumns = useSelector(selectSelectedColumns);
 
   /**
    * Update search query (memoized)
@@ -168,8 +182,19 @@ export const useProductFilters = () => {
   );
 
   return {
-    // Filter values
-    ...filters,
+    // Filter values (from memoized selectors)
+    searchQuery,
+    selectedCategory,
+    vehicleNumber,
+    chassisNumber,
+    manufacturer,
+    model,
+    year,
+    subModel,
+    isActiveFilter,
+    currentPage,
+    pageSize,
+    selectedColumns,
     // Filter setters (all memoized)
     setSearchQuery: handleSearchChange,
     setSelectedCategory: handleCategoryChange,

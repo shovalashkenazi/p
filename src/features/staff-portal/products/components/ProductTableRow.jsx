@@ -148,14 +148,34 @@ const ProductTableRow = memo(({
     </Tr>
   );
 }, (prevProps, nextProps) => {
-  // Custom comparison function for better performance
+  // ✅ Custom comparison function - only re-render if these specific props changed
+  // Check if handlers changed (should be stable with useCallback)
+  if (prevProps.onEdit !== nextProps.onEdit || prevProps.onDelete !== nextProps.onDelete) {
+    return false;
+  }
+
+  // Check if columns array changed (using length + every for performance)
+  if (
+    prevProps.selectedColumns.length !== nextProps.selectedColumns.length ||
+    !prevProps.selectedColumns.every((col, i) => col === nextProps.selectedColumns[i])
+  ) {
+    return false;
+  }
+
+  // Check if critical product fields changed
+  const prevProduct = prevProps.product;
+  const nextProduct = nextProps.product;
+
   return (
-    prevProps.product._id === nextProps.product._id &&
-    prevProps.product.name === nextProps.product.name &&
-    prevProps.product.price === nextProps.product.price &&
-    prevProps.product.stock === nextProps.product.stock &&
-    prevProps.product.isActive === nextProps.product.isActive &&
-    prevProps.selectedColumns.join(',') === nextProps.selectedColumns.join(',')
+    prevProduct._id === nextProduct._id &&
+    prevProduct.name === nextProduct.name &&
+    prevProduct.catalogNumber === nextProduct.catalogNumber &&
+    prevProduct.category === nextProduct.category &&
+    prevProduct.price === nextProduct.price &&
+    prevProduct.stock === nextProduct.stock &&
+    prevProduct.supplier === nextProduct.supplier &&
+    prevProduct.isActive === nextProduct.isActive &&
+    prevProduct.images?.[0] === nextProduct.images?.[0]
   );
 });
 

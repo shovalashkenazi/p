@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import {
   Flex,
   HStack,
@@ -75,6 +75,14 @@ const ProductFiltersBar = memo(({
     subModel,
     isActiveFilter !== null,
   ].filter(Boolean).length;
+
+  // ✅ Memoized input handler to prevent inline function creation
+  const handleSearchInput = useCallback(
+    (e) => {
+      onSearchChange(e.target.value);
+    },
+    [onSearchChange]
+  );
 
   return (
     <Flex justify="space-between" align="center" mb={4}>
@@ -347,7 +355,7 @@ const ProductFiltersBar = memo(({
         <Input
           placeholder="חיפוש מהיר..."
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={handleSearchInput}
           bg={bgColor}
           border="1px solid"
           borderColor={borderColor}
@@ -362,6 +370,26 @@ const ProductFiltersBar = memo(({
         />
       </InputGroup>
     </Flex>
+  );
+}, (prevProps, nextProps) => {
+  // ✅ Custom comparison - prevent re-render unless these specific props changed
+  return (
+    prevProps.searchQuery === nextProps.searchQuery &&
+    prevProps.selectedCategory === nextProps.selectedCategory &&
+    prevProps.vehicleNumber === nextProps.vehicleNumber &&
+    prevProps.chassisNumber === nextProps.chassisNumber &&
+    prevProps.manufacturer === nextProps.manufacturer &&
+    prevProps.model === nextProps.model &&
+    prevProps.year === nextProps.year &&
+    prevProps.subModel === nextProps.subModel &&
+    prevProps.isActiveFilter === nextProps.isActiveFilter &&
+    prevProps.isFetching === nextProps.isFetching &&
+    prevProps.categories.length === nextProps.categories.length &&
+    prevProps.selectedColumns.length === nextProps.selectedColumns.length &&
+    prevProps.onSearchChange === nextProps.onSearchChange &&
+    prevProps.onCategoryChange === nextProps.onCategoryChange &&
+    prevProps.onRefresh === nextProps.onRefresh &&
+    prevProps.onOpenCreateModal === nextProps.onOpenCreateModal
   );
 });
 
