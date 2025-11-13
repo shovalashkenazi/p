@@ -8,6 +8,9 @@ import CatalogIndex from "./features/staff-portal/catalog/CatalogIndex";
 import ToolsIndex from "./features/staff-portal/tools/ToolsIndex";
 import CustomersIndex from "./features/staff-portal/customers/CustomersIndex";
 import SubscriptionsIndex from "./features/staff-portal/subscriptions/SubscriptionsIndex";
+import ServiceContractsIndex from "./features/staff-portal/subscriptions/ServiceContractsIndex";
+import ServiceCallsIndex from "./features/staff-portal/subscriptions/ServiceCallsIndex";
+import SubscriptionsListIndex from "./features/staff-portal/subscriptions/SubscriptionsListIndex";
 import ReportsIndex from "./features/staff-portal/reports/ReportsIndex";
 import WarehouseIndex from "./features/staff-portal/warehouse/WarehouseIndex";
 import OrdersIndex from "./features/staff-portal/orders/OrdersIndex";
@@ -30,6 +33,18 @@ function App() {
         <Route path="tools" element={<ToolsIndex />} />
         <Route path="customers" element={<CustomersIndex />} />
         <Route path="subscriptions" element={<SubscriptionsIndex />} />
+        <Route
+          path="subscriptions/service-contracts"
+          element={<ServiceContractsIndex />}
+        />
+        <Route
+          path="subscriptions/service-calls"
+          element={<ServiceCallsIndex />}
+        />
+        <Route
+          path="subscriptions/list"
+          element={<SubscriptionsListIndex />}
+        />
         <Route path="reports" element={<ReportsIndex />} />
         <Route path="warehouse" element={<WarehouseIndex />} />
         <Route path="orders" element={<OrdersIndex />} />

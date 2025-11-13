@@ -41,6 +41,8 @@ const Sidebar = () => {
   const hoverBg = useColorModeValue("gray.50", "gray.700");
   const activeBg = useColorModeValue("white", "gray.600");
 
+  const [isSubscriptionsOpen, setIsSubscriptionsOpen] = useState(false);
+
   const menuItems = [
     {
       icon: Home,
@@ -74,12 +76,6 @@ const Sidebar = () => {
       path: "/dashboard/worker/customers",
     },
     {
-      icon: Shield,
-      label: "מנויים",
-      path: "/dashboard/worker/subscriptions",
-    },
-
-    {
       icon: Warehouse,
       label: "מחסנים ומלאי",
       path: "/dashboard/worker/warehouse",
@@ -88,6 +84,24 @@ const Sidebar = () => {
       icon: Route,
       label: "מסלולי נהגים",
       path: "/dashboard/worker/drivers-routes",
+    },
+  ];
+
+  const subscriptionsSubMenu = [
+    {
+      icon: FileText,
+      label: "כתבי שירות",
+      path: "/dashboard/worker/subscriptions/service-contracts",
+    },
+    {
+      icon: Shield,
+      label: "קריאות שירות",
+      path: "/dashboard/worker/subscriptions/service-calls",
+    },
+    {
+      icon: Shield,
+      label: "מנויים",
+      path: "/dashboard/worker/subscriptions/list",
     },
   ];
 
@@ -135,6 +149,124 @@ const Sidebar = () => {
     );
   });
 
+  const CollapsibleMenuItem = React.memo(
+    ({ icon: Icon, label, subItems, isOpen, onToggle }) => {
+      const isAnySubItemActive = subItems.some(
+        (item) => location.pathname === item.path
+      );
+
+      return (
+        <Box w="full">
+          {/* Parent Item */}
+          <Flex
+            w="full"
+            align="center"
+            cursor="pointer"
+            borderRadius="xl"
+            color={isAnySubItemActive ? textColor : secondaryTextColor}
+            bg={isAnySubItemActive ? activeBg : "transparent"}
+            _hover={{
+              bg: isAnySubItemActive ? activeBg : hoverBg,
+              transform: "translateX(-2px)",
+            }}
+            transition="all 0.2s ease-in-out"
+            border="1px solid"
+            borderColor={isAnySubItemActive ? borderColor : "transparent"}
+            boxShadow={isAnySubItemActive ? "sm" : "none"}
+            onClick={onToggle}
+          >
+            {/* Active Indicator */}
+            <Box
+              w="4px"
+              h="45px"
+              bg={isAnySubItemActive ? primaryColor : "transparent"}
+              borderRadius="0 4px 4px 0"
+              transition="all 0.2s ease-in-out"
+            />
+
+            {/* Menu Content */}
+            <HStack flex="1" px={4} py={3} justifyContent="space-between">
+              <HStack spacing={3}>
+                <Icon size={18} />
+                <Text
+                  fontSize="sm"
+                  fontWeight={isAnySubItemActive ? "600" : "500"}
+                >
+                  {label}
+                </Text>
+              </HStack>
+              <ChevronDown
+                size={16}
+                style={{
+                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease-in-out",
+                }}
+              />
+            </HStack>
+          </Flex>
+
+          {/* Sub Items */}
+          <Box
+            maxH={isOpen ? "500px" : "0"}
+            overflow="hidden"
+            transition="max-height 0.3s ease-in-out"
+          >
+            <VStack align="stretch" spacing={1} mt={2} pr={4}>
+              {subItems.map((item, index) => (
+                <NavLink
+                  key={index}
+                  to={item.path}
+                  style={{ textDecoration: "none", width: "100%" }}
+                >
+                  <Flex
+                    w="full"
+                    align="center"
+                    cursor="pointer"
+                    borderRadius="lg"
+                    color={
+                      location.pathname === item.path
+                        ? textColor
+                        : secondaryTextColor
+                    }
+                    bg={
+                      location.pathname === item.path ? activeBg : "transparent"
+                    }
+                    _hover={{
+                      bg:
+                        location.pathname === item.path ? activeBg : hoverBg,
+                    }}
+                    transition="all 0.2s ease-in-out"
+                    py={2}
+                    px={4}
+                  >
+                    <HStack spacing={3}>
+                      <Circle
+                        size="6px"
+                        bg={
+                          location.pathname === item.path
+                            ? primaryColor
+                            : secondaryTextColor
+                        }
+                      />
+                      <Text
+                        fontSize="sm"
+                        fontWeight={
+                          location.pathname === item.path ? "600" : "500"
+                        }
+                      >
+                        {item.label}
+                      </Text>
+                    </HStack>
+                  </Flex>
+                </NavLink>
+              ))}
+            </VStack>
+          </Box>
+        </Box>
+      );
+    }
+  );
+
   return (
     <Box
       w="280px"
@@ -175,6 +307,15 @@ const Sidebar = () => {
         {menuItems.map((item, index) => (
           <MenuItem key={index} {...item} />
         ))}
+
+        {/* Subscriptions Collapsible Menu */}
+        <CollapsibleMenuItem
+          icon={Shield}
+          label="מנויים"
+          subItems={subscriptionsSubMenu}
+          isOpen={isSubscriptionsOpen}
+          onToggle={() => setIsSubscriptionsOpen(!isSubscriptionsOpen)}
+        />
       </VStack>
     </Box>
   );

@@ -24,7 +24,7 @@ import {
   Divider,
   useDisclosure,
   Badge,
-  Progress,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   Search,
@@ -38,12 +38,11 @@ import {
   Download,
   Upload,
   RefreshCw,
-  ChevronLeft,
-  ChevronRight,
+  FileText,
 } from "lucide-react";
-import DriversRoutesModal from "./DriversRoutesModal";
+import ServiceContractModal from "./ServiceContractModal";
 
-const DriversRoutesIndex = () => {
+const ServiceContractsIndex = () => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -53,105 +52,101 @@ const DriversRoutesIndex = () => {
   const stripedBg = useColorModeValue("gray.50", "gray.900");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedContract, setSelectedContract] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentDate, setCurrentDate] = useState("2025-11-13");
 
-  // נתוני דוגמה - 10 נהגים
-  const drivers = [
+  // נתוני דוגמה - 10 כתבי שירות
+  const contracts = [
     {
       id: 1,
-      name: "יוסי כהן",
-      yesterday: { completed: 12, failed: 1, total: 13 },
-      today: { completed: 8, inProgress: 3, failed: 0, total: 15 },
-      tomorrow: { scheduled: 14 },
+      contractCode: "SC-2025-001",
+      subscriptionType: "מנוי זהב",
+      annualPrice: "₪5,000",
+      serviceLocation: "תל אביב והמרכז",
+      deductible: "₪200",
     },
     {
       id: 2,
-      name: "דוד לוי",
-      yesterday: { completed: 10, failed: 0, total: 10 },
-      today: { completed: 6, inProgress: 2, failed: 1, total: 12 },
-      tomorrow: { scheduled: 11 },
+      contractCode: "SC-2025-002",
+      subscriptionType: "מנוי כסף",
+      annualPrice: "₪3,500",
+      serviceLocation: "חיפה והצפון",
+      deductible: "₪300",
     },
     {
       id: 3,
-      name: "משה אברהם",
-      yesterday: { completed: 15, failed: 2, total: 17 },
-      today: { completed: 10, inProgress: 4, failed: 1, total: 18 },
-      tomorrow: { scheduled: 16 },
+      contractCode: "SC-2025-003",
+      subscriptionType: "מנוי ברונזה",
+      annualPrice: "₪2,000",
+      serviceLocation: "באר שבע והדרום",
+      deductible: "₪400",
     },
     {
       id: 4,
-      name: "רועי ישראלי",
-      yesterday: { completed: 8, failed: 0, total: 8 },
-      today: { completed: 5, inProgress: 1, failed: 0, total: 9 },
-      tomorrow: { scheduled: 10 },
+      contractCode: "SC-2025-004",
+      subscriptionType: "מנוי זהב",
+      annualPrice: "₪5,000",
+      serviceLocation: "ירושלים והסביבה",
+      deductible: "₪200",
     },
     {
       id: 5,
-      name: "עמית שלום",
-      yesterday: { completed: 11, failed: 1, total: 12 },
-      today: { completed: 7, inProgress: 2, failed: 0, total: 11 },
-      tomorrow: { scheduled: 13 },
+      contractCode: "SC-2025-005",
+      subscriptionType: "מנוי פרימיום",
+      annualPrice: "₪7,500",
+      serviceLocation: "כל הארץ",
+      deductible: "₪0",
     },
     {
       id: 6,
-      name: "אלון מזרחי",
-      yesterday: { completed: 9, failed: 0, total: 9 },
-      today: { completed: 4, inProgress: 3, failed: 1, total: 10 },
-      tomorrow: { scheduled: 12 },
+      contractCode: "SC-2025-006",
+      subscriptionType: "מנוי כסף",
+      annualPrice: "₪3,500",
+      serviceLocation: "פתח תקווה ורמת גן",
+      deductible: "₪300",
     },
     {
       id: 7,
-      name: "גיא פרץ",
-      yesterday: { completed: 13, failed: 2, total: 15 },
-      today: { completed: 9, inProgress: 5, failed: 0, total: 16 },
-      tomorrow: { scheduled: 15 },
+      contractCode: "SC-2025-007",
+      subscriptionType: "מנוי ברונזה",
+      annualPrice: "₪2,000",
+      serviceLocation: "נתניה והשרון",
+      deductible: "₪400",
     },
     {
       id: 8,
-      name: "אורי דהן",
-      yesterday: { completed: 7, failed: 0, total: 7 },
-      today: { completed: 3, inProgress: 2, failed: 0, total: 8 },
-      tomorrow: { scheduled: 9 },
+      contractCode: "SC-2025-008",
+      subscriptionType: "מנוי זהב",
+      annualPrice: "₪5,000",
+      serviceLocation: "אשדוד ואשקלון",
+      deductible: "₪200",
     },
     {
       id: 9,
-      name: "נועם ביטון",
-      yesterday: { completed: 14, failed: 1, total: 15 },
-      today: { completed: 11, inProgress: 3, failed: 1, total: 17 },
-      tomorrow: { scheduled: 14 },
+      contractCode: "SC-2025-009",
+      subscriptionType: "מנוי פרימיום",
+      annualPrice: "₪7,500",
+      serviceLocation: "כל הארץ",
+      deductible: "₪0",
     },
     {
       id: 10,
-      name: "יניב חדד",
-      yesterday: { completed: 10, failed: 0, total: 10 },
-      today: { completed: 6, inProgress: 4, failed: 0, total: 13 },
-      tomorrow: { scheduled: 11 },
+      contractCode: "SC-2025-010",
+      subscriptionType: "מנוי כסף",
+      annualPrice: "₪3,500",
+      serviceLocation: "רעננה והרצליה",
+      deductible: "₪300",
     },
   ];
 
-  // חישוב סיכומים
-  const totalCompleted = drivers.reduce((sum, d) => sum + d.today.completed, 0);
-  const totalFailed = drivers.reduce((sum, d) => sum + d.today.failed, 0);
-  const totalCards = drivers.reduce((sum, d) => sum + d.today.total, 0);
-
-  const handleAddDriver = () => {
-    setSelectedDriver(null);
+  const handleAddContract = () => {
+    setSelectedContract(null);
     onOpen();
   };
 
-  const handleEditDriver = (driver) => {
-    setSelectedDriver(driver);
+  const handleEditContract = (contract) => {
+    setSelectedContract(contract);
     onOpen();
-  };
-
-  const handlePreviousDay = () => {
-    console.log("מעבר ליום הקודם");
-  };
-
-  const handleNextDay = () => {
-    console.log("מעבר ליום הבא");
   };
 
   const handleRefresh = () => {
@@ -164,137 +159,12 @@ const DriversRoutesIndex = () => {
       <Flex justify="space-between" align="center" mb={8}>
         <Box>
           <Heading size="xl" mb={2} color={textColor}>
-            מסלולי נהגים
+            כתבי שירות
           </Heading>
           <Text fontSize="md" color={secondaryText}>
-            ניהול מסלולי נהגים וכרטיסי עבודה יומיים
+            ניהול כתבי שירות והסכמי תחזוקה
           </Text>
         </Box>
-      </Flex>
-
-      {/* Date Navigation */}
-      <Flex justify="center" align="center" mb={6}>
-        <HStack spacing={4}>
-          <Button
-            leftIcon={<ChevronRight size={20} />}
-            variant="outline"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="sm"
-            fontWeight="600"
-            color={textColor}
-            borderColor={borderColor}
-            borderWidth="1px"
-            _hover={{ bg: hoverBg }}
-            onClick={handleNextDay}
-          >
-            יום הבא
-          </Button>
-          <Box
-            px={6}
-            py={3}
-            bg={bgColor}
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="full"
-            boxShadow="sm"
-          >
-            <Text fontSize="lg" fontWeight="700" color={textColor}>
-              {currentDate}
-            </Text>
-          </Box>
-          <Button
-            rightIcon={<ChevronLeft size={20} />}
-            variant="outline"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="sm"
-            fontWeight="600"
-            color={textColor}
-            borderColor={borderColor}
-            borderWidth="1px"
-            _hover={{ bg: hoverBg }}
-            onClick={handlePreviousDay}
-          >
-            יום קודם
-          </Button>
-        </HStack>
-      </Flex>
-
-      {/* Status Summary */}
-      <Flex justify="center" align="center" mb={8}>
-        <HStack spacing={6}>
-          <Box
-            px={6}
-            py={4}
-            bg={bgColor}
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="xl"
-            boxShadow="md"
-            textAlign="center"
-          >
-            <Text fontSize="sm" color={secondaryText} mb={1}>
-              בוצעו
-            </Text>
-            <Badge colorScheme="green" fontSize="xl" px={4} py={2}>
-              {totalCompleted}
-            </Badge>
-          </Box>
-          <Box
-            px={6}
-            py={4}
-            bg={bgColor}
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="xl"
-            boxShadow="md"
-            textAlign="center"
-          >
-            <Text fontSize="sm" color={secondaryText} mb={1}>
-              נכשלו
-            </Text>
-            <Badge colorScheme="red" fontSize="xl" px={4} py={2}>
-              {totalFailed}
-            </Badge>
-          </Box>
-          <Box
-            px={6}
-            py={4}
-            bg={bgColor}
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="xl"
-            boxShadow="md"
-            textAlign="center"
-          >
-            <Text fontSize="sm" color={secondaryText} mb={1}>
-              סה״כ כרטיסים
-            </Text>
-            <Badge colorScheme="blue" fontSize="xl" px={4} py={2}>
-              {totalCards}
-            </Badge>
-          </Box>
-          <Box
-            px={6}
-            py={4}
-            bg={bgColor}
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="xl"
-            boxShadow="md"
-            textAlign="center"
-          >
-            <Text fontSize="sm" color={secondaryText} mb={1}>
-              סיכום כללי
-            </Text>
-            <Badge colorScheme="orange" fontSize="xl" px={4} py={2}>
-              {((totalCompleted / totalCards) * 100).toFixed(0)}%
-            </Badge>
-          </Box>
-        </HStack>
       </Flex>
 
       {/* Action Bar - Row 1 */}
@@ -313,9 +183,9 @@ const DriversRoutesIndex = () => {
             _active={{ transform: "translateY(0)" }}
             transition="all 0.2s"
             boxShadow="md"
-            onClick={handleAddDriver}
+            onClick={handleAddContract}
           >
-            הוספת נהג
+            יצירת כתב שירות
           </Button>
           <Button
             leftIcon={<Filter size={18} />}
@@ -416,7 +286,7 @@ const DriversRoutesIndex = () => {
         </HStack>
 
         <Text fontSize="sm" color={secondaryText}>
-          {drivers.length} נהגים פעילים
+          {contracts.length} כתבי שירות במערכת
         </Text>
       </Flex>
 
@@ -459,7 +329,7 @@ const DriversRoutesIndex = () => {
                 whiteSpace="nowrap"
                 minW="150px"
               >
-                נהג
+                מק״ט כתב שירות
               </Th>
               <Th
                 textAlign="right"
@@ -470,9 +340,8 @@ const DriversRoutesIndex = () => {
                 borderColor={borderColor}
                 py={4}
                 whiteSpace="nowrap"
-                minW="180px"
               >
-                אתמול
+                סוג המנוי
               </Th>
               <Th
                 textAlign="right"
@@ -483,9 +352,8 @@ const DriversRoutesIndex = () => {
                 borderColor={borderColor}
                 py={4}
                 whiteSpace="nowrap"
-                minW="250px"
               >
-                התקדמות היום
+                מחיר מנוי שנתי
               </Th>
               <Th
                 textAlign="right"
@@ -496,9 +364,20 @@ const DriversRoutesIndex = () => {
                 borderColor={borderColor}
                 py={4}
                 whiteSpace="nowrap"
-                minW="150px"
               >
-                מחר
+                מיקום קבלת שירות
+              </Th>
+              <Th
+                textAlign="right"
+                fontSize="sm"
+                fontWeight="700"
+                color={textColor}
+                textTransform="none"
+                borderColor={borderColor}
+                py={4}
+                whiteSpace="nowrap"
+              >
+                השתתפות עצמית
               </Th>
               <Th
                 textAlign="center"
@@ -515,78 +394,50 @@ const DriversRoutesIndex = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {drivers.map((driver, index) => (
+            {contracts.map((contract, index) => (
               <Tr
-                key={driver.id}
+                key={contract.id}
                 bg={index % 2 === 0 ? bgColor : stripedBg}
                 _hover={{ bg: hoverBg }}
                 transition="background 0.2s"
               >
                 <Td borderColor={borderColor} py={3} minW="150px">
                   <Text fontSize="sm" fontWeight="600" color={textColor}>
-                    {driver.name}
+                    {contract.contractCode}
                   </Text>
                 </Td>
-                <Td borderColor={borderColor} py={3} minW="180px">
-                  <HStack spacing={2}>
-                    <Badge colorScheme="green" fontSize="xs">
-                      {driver.yesterday.completed}
-                    </Badge>
-                    <Text fontSize="xs" color={secondaryText}>
-                      /
-                    </Text>
-                    <Badge colorScheme="gray" fontSize="xs">
-                      {driver.yesterday.total}
-                    </Badge>
-                    {driver.yesterday.failed > 0 && (
-                      <>
-                        <Text fontSize="xs" color={secondaryText}>
-                          |
-                        </Text>
-                        <Badge colorScheme="red" fontSize="xs">
-                          {driver.yesterday.failed} נכשל
-                        </Badge>
-                      </>
-                    )}
-                  </HStack>
-                </Td>
-                <Td borderColor={borderColor} py={3} minW="250px">
-                  <Box>
-                    <HStack spacing={2} mb={2}>
-                      <Badge colorScheme="green" fontSize="xs">
-                        {driver.today.completed} בוצע
-                      </Badge>
-                      <Badge colorScheme="blue" fontSize="xs">
-                        {driver.today.inProgress} במסלול
-                      </Badge>
-                      {driver.today.failed > 0 && (
-                        <Badge colorScheme="red" fontSize="xs">
-                          {driver.today.failed} נכשל
-                        </Badge>
-                      )}
-                    </HStack>
-                    <Progress
-                      value={
-                        (driver.today.completed / driver.today.total) * 100
-                      }
-                      size="sm"
-                      colorScheme="green"
-                      borderRadius="full"
-                    />
-                    <Text fontSize="xs" color={secondaryText} mt={1}>
-                      {driver.today.completed} / {driver.today.total} (
-                      {(
-                        (driver.today.completed / driver.today.total) *
-                        100
-                      ).toFixed(0)}
-                      %)
-                    </Text>
-                  </Box>
-                </Td>
-                <Td borderColor={borderColor} py={3} minW="150px">
-                  <Badge colorScheme="purple" fontSize="xs">
-                    {driver.tomorrow.scheduled} מתוכנן
+                <Td borderColor={borderColor} py={3}>
+                  <Badge
+                    colorScheme={
+                      contract.subscriptionType === "מנוי פרימיום"
+                        ? "purple"
+                        : contract.subscriptionType === "מנוי זהב"
+                        ? "orange"
+                        : contract.subscriptionType === "מנוי כסף"
+                        ? "blue"
+                        : "gray"
+                    }
+                    fontSize="xs"
+                  >
+                    {contract.subscriptionType}
                   </Badge>
+                </Td>
+                <Td borderColor={borderColor} py={3}>
+                  <Text fontSize="sm" fontWeight="600" color={textColor}>
+                    {contract.annualPrice}
+                  </Text>
+                </Td>
+                <Td borderColor={borderColor} py={3} maxW="200px">
+                  <Tooltip label={contract.serviceLocation} hasArrow>
+                    <Text fontSize="sm" color={secondaryText} isTruncated>
+                      {contract.serviceLocation}
+                    </Text>
+                  </Tooltip>
+                </Td>
+                <Td borderColor={borderColor} py={3}>
+                  <Text fontSize="sm" color={secondaryText}>
+                    {contract.deductible}
+                  </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3} textAlign="center">
                   <Menu>
@@ -598,25 +449,28 @@ const DriversRoutesIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList
-                      dir="rtl"
-                      borderColor={borderColor}
-                      boxShadow="lg"
-                    >
+                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
                       <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
-                        onClick={() => handleEditDriver(driver)}
                       >
-                        צפייה במסלול
+                        צפייה בכתב שירות
                       </ChakraMenuItem>
                       <ChakraMenuItem
                         icon={<Edit size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
+                        onClick={() => handleEditContract(contract)}
                       >
-                        עריכת מסלול
+                        עריכת כתב שירות
+                      </ChakraMenuItem>
+                      <ChakraMenuItem
+                        icon={<FileText size={16} />}
+                        _hover={{ bg: hoverBg }}
+                        fontSize="sm"
+                      >
+                        צפייה ב-PDF
                       </ChakraMenuItem>
                       <ChakraMenuItem
                         icon={<Trash2 size={16} />}
@@ -624,7 +478,7 @@ const DriversRoutesIndex = () => {
                         color="red.500"
                         fontSize="sm"
                       >
-                        מחיקת נהג
+                        מחיקת כתב שירות
                       </ChakraMenuItem>
                     </MenuList>
                   </Menu>
@@ -638,7 +492,7 @@ const DriversRoutesIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-{drivers.length} מתוך {drivers.length} נהגים
+          מציג 1-{contracts.length} מתוך {contracts.length} כתבי שירות
         </Text>
         <HStack spacing={2}>
           <Button
@@ -665,14 +519,14 @@ const DriversRoutesIndex = () => {
         </HStack>
       </Flex>
 
-      {/* Drivers Routes Modal */}
-      <DriversRoutesModal
+      {/* Service Contract Modal */}
+      <ServiceContractModal
         isOpen={isOpen}
         onClose={onClose}
-        driver={selectedDriver}
+        contract={selectedContract}
       />
     </Box>
   );
 };
 
-export default DriversRoutesIndex;
+export default ServiceContractsIndex;
