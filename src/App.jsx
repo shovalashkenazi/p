@@ -1,12 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProductIndex from "./features/staff-portal/products/ProductIndex";
-import ProductCategoriesIndex from "./features/staff-portal/products/ProductCategoriesIndex";
+import ProductCategoriesIndex from "./features/staff-portal/categories/ProductCategoriesIndex";
 import DashboardLayout from "./features/staff-portal/main/DashboardLayout";
 import DashboardMain from "./features/staff-portal/main/DashboardMain";
 import DocsIndex from "./features/staff-portal/docs/DocsIndex";
 import GovIndex from "./features/staff-portal/gov/GovIndex";
 import CatalogIndex from "./features/staff-portal/catalog/CatalogIndex";
-import CustomersIndex from "./features/staff-portal/customers/CustomersIndex";
 import CustomersAccountIndex from "./features/staff-portal/accounts/CustomersAccountIndex";
 import WorkersIndex from "./features/staff-portal/accounts/WorkersIndex";
 import AgentsIndex from "./features/staff-portal/accounts/AgentsIndex";
@@ -17,11 +16,8 @@ import SubscriptionsIndex from "./features/staff-portal/subscriptions/Subscripti
 import ServiceContractsIndex from "./features/staff-portal/subscriptions/ServiceContractsIndex";
 import ServiceCallsIndex from "./features/staff-portal/subscriptions/ServiceCallsIndex";
 import SubscriptionsListIndex from "./features/staff-portal/subscriptions/SubscriptionsListIndex";
-import ReportsIndex from "./features/staff-portal/reports/ReportsIndex";
-import WarehouseIndex from "./features/staff-portal/warehouse/WarehouseIndex";
 import WarehousesPortalIndex from "./features/staff-portal/warehouses/WarehousesPortalIndex";
 import WarehousesManagementIndex from "./features/staff-portal/warehouses/WarehousesManagementIndex";
-import OrdersIndex from "./features/staff-portal/orders/OrdersIndex";
 import DriversRoutesIndex from "./features/staff-portal/drivers-routes/DriversRoutesIndex";
 import StatusesManagementIndex from "./features/staff-portal/settings/StatusesManagementIndex";
 
@@ -77,10 +73,6 @@ function App() {
         <Route path="docs" element={<DocsIndex />} />
         <Route path="gov" element={<GovIndex />} />
         <Route path="catalog" element={<CatalogIndex />} />
-        <Route path="customers" element={<CustomersIndex />} />
-        <Route path="reports" element={<ReportsIndex />} />
-        <Route path="warehouse" element={<WarehouseIndex />} />
-        <Route path="orders" element={<OrdersIndex />} />
         <Route path="drivers-routes" element={<DriversRoutesIndex />} />
       </Route>
     </Routes>

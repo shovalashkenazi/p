@@ -52,7 +52,7 @@ const WarehousesPortalIndex = () => {
 
   // נתונים סטטיסטיים
   const stats = {
-    picking: 24,
+    picking: 34,
     production: 12,
     ordered: 18,
     receiving: 8,
@@ -670,7 +670,11 @@ const WarehousesPortalIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+                    <MenuList
+                      dir="rtl"
+                      borderColor={borderColor}
+                      boxShadow="lg"
+                    >
                       <ChakraMenuItem
                         icon={<Printer size={16} />}
                         _hover={{ bg: hoverBg }}
