@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -11,7 +11,6 @@ import {
   Button,
   IconButton,
   HStack,
-  Badge,
   Menu,
   MenuButton,
   MenuList,
@@ -23,25 +22,29 @@ import {
   InputLeftElement,
   useColorModeValue,
   Divider,
+  useDisclosure,
+  Badge,
   Tooltip,
 } from "@chakra-ui/react";
 import {
   Search,
   MoreVertical,
+  Edit,
+  Eye,
+  Trash2,
   Plus,
   Filter,
   Columns,
   Download,
   Upload,
   RefreshCw,
-  Edit,
-  Eye,
-  Trash2,
   Tag,
   ChevronDown,
 } from "lucide-react";
+import GenericAccountModal from "./GenericAccountModal";
 
-const GovIndex = () => {
+// רכיב גנרי לכל סוגי החשבונות
+const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -50,166 +53,168 @@ const GovIndex = () => {
   const hoverBg = useColorModeValue("gray.50", "gray.700");
   const stripedBg = useColorModeValue("gray.50", "gray.900");
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedAccount, setSelectedAccount] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // נתוני דוגמה - 12 כלים
-  const tools = [
+  // קטגוריות לפי סוג החשבון
+  const categories = ["לקוחות", "עובדים", "סוכנים", "מתקינים", "מחסנאים", "ספקים"];
+
+  // נתוני דוגמה - 10 חשבונות
+  const accounts = [
     {
       id: 1,
-      toolNumber: "TOOL-001",
-      category: 'כלי צמ"ה',
-      manufacturer: "קטרפילר",
-      model: "320D",
-      serialNumber: "CAT320D2024001",
-      year: "2020",
-      status: "פעיל",
-      location: "מחסן ראשי",
+      accountId: `${accountType.toUpperCase()}-001`,
+      name: "משה כהן",
+      type: "עסקי",
+      category: "לקוחות",
+      businessId: "514234567",
+      phone: "050-1234567",
+      email: "moshe@example.com",
+      address: "רח׳ הרצל 45",
+      city: "תל אביב",
     },
     {
       id: 2,
-      toolNumber: "TOOL-002",
-      category: "כלים כבדים",
-      manufacturer: "קומטסו",
-      model: "PC290LC",
-      serialNumber: "KOM290LC2024002",
-      year: "2019",
-      status: "בתיקון",
-      location: "מוסך צפון",
+      accountId: `${accountType.toUpperCase()}-002`,
+      name: "שרה אברהם",
+      type: "פרטי",
+      category: "עובדים",
+      businessId: "312345678",
+      phone: "052-9876543",
+      email: "sara@example.com",
+      address: "רח׳ בן גוריון 12",
+      city: "רמת גן",
     },
     {
       id: 3,
-      toolNumber: "TOOL-003",
-      category: "כלי רכב",
-      manufacturer: "פורד",
-      model: "F-150",
-      serialNumber: "FORDF1502024003",
-      year: "2022",
-      status: "פעיל",
-      location: "מחסן דרום",
+      accountId: `${accountType.toUpperCase()}-003`,
+      name: "דוד ישראלי",
+      type: "עסקי",
+      category: "סוכנים",
+      businessId: "514567890",
+      phone: "054-4567891",
+      email: "david@example.com",
+      address: "רח׳ ויצמן 78",
+      city: "פתח תקווה",
     },
     {
       id: 4,
-      toolNumber: "TOOL-004",
-      category: 'כלי צמ"ה',
-      manufacturer: "ג'ון דיר",
-      model: "6430",
-      serialNumber: "JD64302024004",
-      year: "2021",
-      status: "פעיל",
-      location: "מחסן ראשי",
+      accountId: `${accountType.toUpperCase()}-004`,
+      name: "רחל שלום",
+      type: "פרטי",
+      category: "מתקינים",
+      businessId: "325678901",
+      phone: "053-7891234",
+      email: "rachel@example.com",
+      address: "רח׳ רוטשילד 56",
+      city: "ראשון לציון",
     },
     {
       id: 5,
-      toolNumber: "TOOL-005",
-      category: "כלים כבדים",
-      manufacturer: "וולבו",
-      model: "EC220E",
-      serialNumber: "VOLEC220E2024005",
-      year: "2018",
-      status: "לא פעיל",
-      location: "מחסן מרכז",
+      accountId: `${accountType.toUpperCase()}-005`,
+      name: "יוסף מזרחי",
+      type: "עסקי",
+      category: "מחסנאים",
+      businessId: "514678901",
+      phone: "050-3216549",
+      email: "yosef@example.com",
+      address: "רח׳ דיזנגוף 89",
+      city: "תל אביב",
     },
     {
       id: 6,
-      toolNumber: "TOOL-006",
-      category: "כלי רכב",
-      manufacturer: "טויוטה",
-      model: "Hilux",
-      serialNumber: "TOYHILUX2024006",
-      year: "2023",
-      status: "פעיל",
-      location: "מחסן צפון",
+      accountId: `${accountType.toUpperCase()}-006`,
+      name: "מרים ביטון",
+      type: "פרטי",
+      category: "ספקים",
+      businessId: "336789012",
+      phone: "052-6549873",
+      email: "miriam@example.com",
+      address: "רח׳ הרב קוק 34",
+      city: "בני ברק",
     },
     {
       id: 7,
-      toolNumber: "TOOL-007",
-      category: 'כלי צמ"ה',
-      manufacturer: "מסי פרגוסון",
-      model: "6713",
-      serialNumber: "MF67132024007",
-      year: "2020",
-      status: "פעיל",
-      location: "מחסן דרום",
+      accountId: `${accountType.toUpperCase()}-007`,
+      name: "אברהם חדד",
+      type: "עסקי",
+      category: "לקוחות",
+      businessId: "514789012",
+      phone: "054-1472583",
+      email: "avraham@example.com",
+      address: "רח׳ סוקולוב 23",
+      city: "הרצליה",
     },
     {
       id: 8,
-      toolNumber: "TOOL-008",
-      category: "כלים כבדים",
-      manufacturer: "קייס",
-      model: "CX210D",
-      serialNumber: "CSECX210D2024008",
-      year: "2021",
-      status: "בתיקון",
-      location: "מוסך מרכזי",
+      accountId: `${accountType.toUpperCase()}-008`,
+      name: "שרה פרץ",
+      type: "פרטי",
+      category: "עובדים",
+      businessId: "347890123",
+      phone: "053-3692581",
+      email: "sara.p@example.com",
+      address: "רח׳ בן יהודה 67",
+      city: "תל אביב",
     },
     {
       id: 9,
-      toolNumber: "TOOL-009",
-      category: "כלי רכב",
-      manufacturer: "שברולט",
-      model: "Silverado",
-      serialNumber: "CHEVSILV2024009",
-      year: "2022",
-      status: "פעיל",
-      location: "מחסן ראשי",
+      accountId: `${accountType.toUpperCase()}-009`,
+      name: "דניאל לוי",
+      type: "עסקי",
+      category: "סוכנים",
+      businessId: "514890123",
+      phone: "050-2581473",
+      email: "daniel@example.com",
+      address: "רח׳ ז'בוטינסקי 101",
+      city: "רמת גן",
     },
     {
       id: 10,
-      toolNumber: "TOOL-010",
-      category: 'כלי צמ"ה',
-      manufacturer: "קובוטה",
-      model: "M7060",
-      serialNumber: "KUBM70602024010",
-      year: "2019",
-      status: "פעיל",
-      location: "מחסן צפון",
-    },
-    {
-      id: 11,
-      toolNumber: "TOOL-011",
-      category: "כלים כבדים",
-      manufacturer: "יונדאי",
-      model: "R160LC-9",
-      serialNumber: "HYUR160LC2024011",
-      year: "2020",
-      status: "פעיל",
-      location: "מחסן דרום",
-    },
-    {
-      id: 12,
-      toolNumber: "TOOL-012",
-      category: "כלי רכב",
-      manufacturer: "ניסאן",
-      model: "Navara",
-      serialNumber: "NISNAV2024012",
-      year: "2023",
-      status: "פעיל",
-      location: "מחסן מרכז",
+      accountId: `${accountType.toUpperCase()}-010`,
+      name: "תמר כהן",
+      type: "פרטי",
+      category: "מתקינים",
+      businessId: "358901234",
+      phone: "052-7418529",
+      email: "tamar@example.com",
+      address: "רח׳ ביאליק 45",
+      city: "רמת גן",
     },
   ];
 
-  // כל הקטגוריות הזמינות במערכת
-  const categories = ['כלי צמ"ה', "כלים כבדים", "כלי רכב"];
+  // סינון לפי קטגוריה
+  const filteredAccounts = useMemo(() => {
+    if (!selectedCategory) return accounts;
+    return accounts.filter((account) => account.category === selectedCategory);
+  }, [selectedCategory, accounts]);
 
-  // סינון כלים לפי קטגוריה נבחרת
-  const filteredTools = useMemo(() => {
-    if (!selectedCategory) return tools;
-    return tools.filter((tool) => tool.category === selectedCategory);
-  }, [selectedCategory, tools]);
-
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      פעיל: { colorScheme: "green" },
-      בתיקון: { colorScheme: "orange" },
-      "לא פעיל": { colorScheme: "red" },
+  const getTypeBadge = (type) => {
+    const typeConfig = {
+      עסקי: { colorScheme: "blue" },
+      פרטי: { colorScheme: "purple" },
     };
-    const config = statusConfig[status] || { colorScheme: "gray" };
+    const config = typeConfig[type] || { colorScheme: "gray" };
     return (
       <Badge colorScheme={config.colorScheme} fontSize="xs">
-        {status}
+        {type}
       </Badge>
     );
+  };
+
+  const handleAddAccount = (category = null) => {
+    setSelectedAccount(null);
+    if (category) {
+      setSelectedCategory(category);
+    }
+    onOpen();
+  };
+
+  const handleEditAccount = (account) => {
+    setSelectedAccount(account);
+    onOpen();
   };
 
   const handleRefresh = () => {
@@ -222,10 +227,10 @@ const GovIndex = () => {
       <Flex justify="space-between" align="center" mb={8}>
         <Box>
           <Heading size="xl" mb={2} color={textColor}>
-            כלים
+            {title}
           </Heading>
           <Text fontSize="md" color={secondaryText}>
-            ניהול כלים ממשלתיים, כבדים ותעשייתיים
+            {subtitle}
           </Text>
         </Box>
       </Flex>
@@ -250,7 +255,7 @@ const GovIndex = () => {
               transition="all 0.2s"
               boxShadow="md"
             >
-              הוסף כלי
+              הוספת חשבון
             </MenuButton>
             <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
               {categories.map((category) => (
@@ -258,10 +263,51 @@ const GovIndex = () => {
                   key={category}
                   _hover={{ bg: hoverBg }}
                   fontSize="sm"
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    console.log("נבחרה קטגוריה:", category);
-                  }}
+                  onClick={() => handleAddAccount(category)}
+                >
+                  {category}
+                </ChakraMenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<Tag size={18} />}
+              rightIcon={<ChevronDown size={16} />}
+              variant="outline"
+              borderRadius="full"
+              px={6}
+              h="45px"
+              fontSize="sm"
+              fontWeight="600"
+              color={selectedCategory ? primary : textColor}
+              borderColor={selectedCategory ? primary : borderColor}
+              borderWidth={selectedCategory ? "2px" : "1px"}
+              bg={selectedCategory ? `${primary}15` : "transparent"}
+              _hover={{ bg: hoverBg }}
+            >
+              {selectedCategory || "קטגוריה"}
+            </MenuButton>
+            <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+              <ChakraMenuItem
+                _hover={{ bg: hoverBg }}
+                fontSize="sm"
+                fontWeight={!selectedCategory ? "700" : "400"}
+                color={!selectedCategory ? primary : textColor}
+                onClick={() => setSelectedCategory(null)}
+              >
+                הצג הכל
+              </ChakraMenuItem>
+              <Divider />
+              {categories.map((category) => (
+                <ChakraMenuItem
+                  key={category}
+                  _hover={{ bg: hoverBg }}
+                  fontSize="sm"
+                  fontWeight={selectedCategory === category ? "700" : "400"}
+                  color={selectedCategory === category ? primary : textColor}
+                  onClick={() => setSelectedCategory(category)}
                 >
                   {category}
                 </ChakraMenuItem>
@@ -298,57 +344,6 @@ const GovIndex = () => {
           >
             עמודות
           </Button>
-          {/* category filter button */}
-          <Menu>
-            <MenuButton
-              as={Button}
-              leftIcon={<Tag size={18} />}
-              rightIcon={<ChevronDown size={16} />}
-              variant="outline"
-              borderRadius="full"
-              px={6}
-              h="45px"
-              fontSize="sm"
-              fontWeight="600"
-              color={selectedCategory ? primary : textColor}
-              borderColor={selectedCategory ? primary : borderColor}
-              borderWidth={selectedCategory ? "2px" : "1px"}
-              bg={selectedCategory ? `${primary}15` : "transparent"}
-              _hover={{ bg: hoverBg }}
-            >
-              {selectedCategory || "קטגוריה"}
-            </MenuButton>
-            <MenuList
-              dir="rtl"
-              borderColor={borderColor}
-              boxShadow="lg"
-              maxH="300px"
-              overflowY="auto"
-            >
-              <ChakraMenuItem
-                _hover={{ bg: hoverBg }}
-                fontSize="sm"
-                fontWeight={!selectedCategory ? "700" : "400"}
-                color={!selectedCategory ? primary : textColor}
-                onClick={() => setSelectedCategory(null)}
-              >
-                הצג הכל
-              </ChakraMenuItem>
-              <Divider my={2} borderColor={borderColor} />
-              {categories.map((category) => (
-                <ChakraMenuItem
-                  key={category}
-                  _hover={{ bg: hoverBg }}
-                  fontSize="sm"
-                  fontWeight={selectedCategory === category ? "700" : "400"}
-                  color={selectedCategory === category ? primary : textColor}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </ChakraMenuItem>
-              ))}
-            </MenuList>
-          </Menu>
           <Button
             leftIcon={<RefreshCw size={18} />}
             variant="outline"
@@ -419,8 +414,8 @@ const GovIndex = () => {
 
         <Text fontSize="sm" color={secondaryText}>
           {selectedCategory
-            ? `${filteredTools.length} כלים מתוך ${tools.length} (${selectedCategory})`
-            : `${tools.length} כלים במערכת`}
+            ? `${filteredAccounts.length} חשבונות מתוך ${accounts.length} (${selectedCategory})`
+            : `${accounts.length} חשבונות במערכת`}
         </Text>
       </Flex>
 
@@ -461,9 +456,8 @@ const GovIndex = () => {
                 borderColor={borderColor}
                 py={4}
                 whiteSpace="nowrap"
-                minW="120px"
               >
-                מספר כלי
+                מזהה
               </Th>
               <Th
                 textAlign="right"
@@ -475,7 +469,7 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                קטגוריה
+                שם
               </Th>
               <Th
                 textAlign="right"
@@ -487,7 +481,7 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                יצרן
+                סוג
               </Th>
               <Th
                 textAlign="right"
@@ -499,20 +493,7 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                דגם
-              </Th>
-              <Th
-                textAlign="right"
-                fontSize="sm"
-                fontWeight="700"
-                color={textColor}
-                textTransform="none"
-                borderColor={borderColor}
-                py={4}
-                whiteSpace="nowrap"
-                minW="180px"
-              >
-                מספר סידורי
+                ת״ז / ח.פ
               </Th>
               <Th
                 textAlign="right"
@@ -524,7 +505,7 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                שנה
+                טלפון
               </Th>
               <Th
                 textAlign="right"
@@ -536,7 +517,7 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                סטטוס
+                אימייל
               </Th>
               <Th
                 textAlign="right"
@@ -548,7 +529,19 @@ const GovIndex = () => {
                 py={4}
                 whiteSpace="nowrap"
               >
-                מיקום
+                כתובת
+              </Th>
+              <Th
+                textAlign="right"
+                fontSize="sm"
+                fontWeight="700"
+                color={textColor}
+                textTransform="none"
+                borderColor={borderColor}
+                py={4}
+                whiteSpace="nowrap"
+              >
+                עיר
               </Th>
               <Th
                 textAlign="center"
@@ -565,56 +558,51 @@ const GovIndex = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {filteredTools.map((tool, index) => (
+            {filteredAccounts.map((account, index) => (
               <Tr
-                key={tool.id}
+                key={account.id}
                 bg={index % 2 === 0 ? bgColor : stripedBg}
                 _hover={{ bg: hoverBg }}
                 transition="background 0.2s"
               >
-                <Td borderColor={borderColor} py={3} minW="120px">
+                <Td borderColor={borderColor} py={3}>
                   <Text fontSize="sm" fontWeight="600" color={textColor}>
-                    {tool.toolNumber}
-                  </Text>
-                </Td>
-                <Td borderColor={borderColor} py={3}>
-                  <Badge colorScheme="blue" fontSize="xs">
-                    {tool.category}
-                  </Badge>
-                </Td>
-                <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText}>
-                    {tool.manufacturer}
+                    {account.accountId}
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
                   <Text fontSize="sm" color={secondaryText}>
-                    {tool.model}
+                    {account.name}
                   </Text>
                 </Td>
-                <Td borderColor={borderColor} py={3} minW="180px">
-                  <Tooltip label={tool.serialNumber} hasArrow>
-                    <Text
-                      fontSize="sm"
-                      color={secondaryText}
-                      isTruncated
-                      maxW="150px"
-                    >
-                      {tool.serialNumber}
+                <Td borderColor={borderColor} py={3}>
+                  {getTypeBadge(account.type)}
+                </Td>
+                <Td borderColor={borderColor} py={3}>
+                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                    {account.businessId}
+                  </Text>
+                </Td>
+                <Td borderColor={borderColor} py={3}>
+                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                    {account.phone}
+                  </Text>
+                </Td>
+                <Td borderColor={borderColor} py={3} maxW="200px">
+                  <Tooltip label={account.email} hasArrow>
+                    <Text fontSize="sm" color={secondaryText} isTruncated>
+                      {account.email}
                     </Text>
                   </Tooltip>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
                   <Text fontSize="sm" color={secondaryText}>
-                    {tool.year}
+                    {account.address}
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
-                  {getStatusBadge(tool.status)}
-                </Td>
-                <Td borderColor={borderColor} py={3}>
                   <Text fontSize="sm" color={secondaryText}>
-                    {tool.location}
+                    {account.city}
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3} textAlign="center">
@@ -627,32 +615,29 @@ const GovIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList
-                      dir="rtl"
-                      borderColor={borderColor}
-                      boxShadow="lg"
-                    >
+                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
                       <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
                       >
-                        צפייה
+                        צפייה בחשבון
                       </ChakraMenuItem>
                       <ChakraMenuItem
                         icon={<Edit size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
+                        onClick={() => handleEditAccount(account)}
                       >
-                        עריכה
+                        עריכת חשבון
                       </ChakraMenuItem>
                       <ChakraMenuItem
                         icon={<Trash2 size={16} />}
-                        _hover={{ bg: hoverBg }}
-                        fontSize="sm"
+                        _hover={{ bg: "red.50" }}
                         color="red.500"
+                        fontSize="sm"
                       >
-                        מחיקה
+                        מחיקת חשבון
                       </ChakraMenuItem>
                     </MenuList>
                   </Menu>
@@ -666,7 +651,7 @@ const GovIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-{filteredTools.length} מתוך {filteredTools.length} כלים
+          מציג 1-{filteredAccounts.length} מתוך {filteredAccounts.length} חשבונות
         </Text>
         <HStack spacing={2}>
           <Button
@@ -692,8 +677,16 @@ const GovIndex = () => {
           </Button>
         </HStack>
       </Flex>
+
+      {/* Account Modal */}
+      <GenericAccountModal
+        isOpen={isOpen}
+        onClose={onClose}
+        account={selectedAccount}
+        accountType={accountType}
+      />
     </Box>
   );
 };
 
-export default GovIndex;
+export default GenericAccountsIndex;

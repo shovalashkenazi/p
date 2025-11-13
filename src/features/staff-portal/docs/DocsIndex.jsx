@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -39,6 +39,8 @@ import {
   FileDown,
   MessageCircle,
   Printer,
+  Tag,
+  ChevronDown,
 } from "lucide-react";
 import DocModal from "./DocModal";
 
@@ -54,6 +56,7 @@ const DocsIndex = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // נתוני דוגמה - 12 מסמכים
   const documents = [
@@ -61,6 +64,7 @@ const DocsIndex = () => {
       id: 1,
       status: "פעיל",
       docNumber: "DOC-2024-001",
+      category: "הצעת מחיר",
       createdDate: "15/01/2024",
       deliveryDate: "20/01/2024",
       clientName: "חברת גלובל טראנס בע״מ",
@@ -79,6 +83,7 @@ const DocsIndex = () => {
       id: 2,
       status: "הושלם",
       docNumber: "DOC-2024-002",
+      category: "חשבונית",
       createdDate: "16/01/2024",
       deliveryDate: "18/01/2024",
       clientName: "משה דוד",
@@ -97,6 +102,7 @@ const DocsIndex = () => {
       id: 3,
       status: "פעיל",
       docNumber: "DOC-2024-003",
+      category: "כרטיס עבודה",
       createdDate: "17/01/2024",
       deliveryDate: "25/01/2024",
       clientName: "חברת אגרו מכונות בע״מ",
@@ -115,6 +121,7 @@ const DocsIndex = () => {
       id: 4,
       status: "בוטל",
       docNumber: "DOC-2024-004",
+      category: "חשבונית זיכוי",
       createdDate: "18/01/2024",
       deliveryDate: "22/01/2024",
       clientName: "רחל שמש",
@@ -132,6 +139,7 @@ const DocsIndex = () => {
     {
       id: 5,
       status: "פעיל",
+      category: "קבלה",
       docNumber: "DOC-2024-005",
       createdDate: "19/01/2024",
       deliveryDate: "28/01/2024",
@@ -151,6 +159,7 @@ const DocsIndex = () => {
       id: 6,
       status: "הושלם",
       docNumber: "DOC-2024-006",
+      category: "תעודת החזרה",
       createdDate: "20/01/2024",
       deliveryDate: "21/01/2024",
       clientName: "יעקב אברהם",
@@ -169,6 +178,7 @@ const DocsIndex = () => {
       id: 7,
       status: "פעיל",
       docNumber: "DOC-2024-007",
+      category: "הצעת מחיר",
       createdDate: "21/01/2024",
       deliveryDate: "30/01/2024",
       clientName: "חברת אופק טכנולוגיות בע״מ",
@@ -187,6 +197,7 @@ const DocsIndex = () => {
       id: 8,
       status: "הושלם",
       docNumber: "DOC-2024-008",
+      category: "חשבונית",
       createdDate: "22/01/2024",
       deliveryDate: "24/01/2024",
       clientName: "שרה לוי",
@@ -205,6 +216,7 @@ const DocsIndex = () => {
       id: 9,
       status: "פעיל",
       docNumber: "DOC-2024-009",
+      category: "תעודת משלוח",
       createdDate: "23/01/2024",
       deliveryDate: "02/02/2024",
       clientName: "חברת דרך החקלאות בע״מ",
@@ -223,6 +235,7 @@ const DocsIndex = () => {
       id: 10,
       status: "פעיל",
       docNumber: "DOC-2024-010",
+      category: "כרטיס עבודה",
       createdDate: "24/01/2024",
       deliveryDate: "05/02/2024",
       clientName: "דוד בן דוד",
@@ -241,6 +254,7 @@ const DocsIndex = () => {
       id: 11,
       status: "הושלם",
       docNumber: "DOC-2024-011",
+      category: "חשבונית מס",
       createdDate: "25/01/2024",
       deliveryDate: "27/01/2024",
       clientName: "חברת כוח המנוף בע״מ",
@@ -259,6 +273,7 @@ const DocsIndex = () => {
       id: 12,
       status: "פעיל",
       docNumber: "DOC-2024-012",
+      category: "הצעת מחיר",
       createdDate: "26/01/2024",
       deliveryDate: "08/02/2024",
       clientName: "אברהם יצחק",
@@ -274,6 +289,26 @@ const DocsIndex = () => {
       totalPrice: 39500,
     },
   ];
+
+  // כל הקטגוריות הזמינות במערכת
+  const categories = [
+    "הצעת מחיר",
+    "חשבונית",
+    "קבלה",
+    "כרטיס עבודה",
+    "תעודת החזרה",
+    "חשבונית זיכוי",
+    "תעודת משלוח",
+    "חשבונית מס",
+    "הזמנת רכש",
+    "דוח עבודה",
+  ];
+
+  // סינון מסמכים לפי קטגוריה נבחרת
+  const filteredDocuments = useMemo(() => {
+    if (!selectedCategory) return documents;
+    return documents.filter((doc) => doc.category === selectedCategory);
+  }, [selectedCategory, documents]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -305,8 +340,11 @@ const DocsIndex = () => {
     }
   };
 
-  const handleAddDoc = () => {
+  const handleAddDoc = (category = null) => {
     setSelectedDoc(null);
+    if (category) {
+      setSelectedCategory(category);
+    }
     onOpen();
   };
 
@@ -336,23 +374,44 @@ const DocsIndex = () => {
       {/* Action Bar - Row 1 */}
       <Flex justify="space-between" align="center" mb={4}>
         <HStack spacing={3}>
-          <Button
-            leftIcon={<Plus size={20} />}
-            bg={primary}
-            color="white"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="md"
-            fontWeight="600"
-            _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
-            _active={{ transform: "translateY(0)" }}
-            transition="all 0.2s"
-            boxShadow="md"
-            onClick={handleAddDoc}
-          >
-            הוספת מסמך
-          </Button>
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<Plus size={20} />}
+              rightIcon={<ChevronDown size={16} />}
+              bg={primary}
+              color="white"
+              borderRadius="full"
+              px={6}
+              h="45px"
+              fontSize="md"
+              fontWeight="600"
+              _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
+              _active={{ transform: "translateY(0)" }}
+              transition="all 0.2s"
+              boxShadow="md"
+            >
+              הוספת מסמך
+            </MenuButton>
+            <MenuList
+              dir="rtl"
+              borderColor={borderColor}
+              boxShadow="lg"
+              maxH="300px"
+              overflowY="auto"
+            >
+              {categories.map((category) => (
+                <ChakraMenuItem
+                  key={category}
+                  _hover={{ bg: hoverBg }}
+                  fontSize="sm"
+                  onClick={() => handleAddDoc(category)}
+                >
+                  {category}
+                </ChakraMenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           <Button
             leftIcon={<Filter size={18} />}
             variant="outline"
@@ -383,6 +442,57 @@ const DocsIndex = () => {
           >
             עמודות
           </Button>
+          {/* category filter button */}
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<Tag size={18} />}
+              rightIcon={<ChevronDown size={16} />}
+              variant="outline"
+              borderRadius="full"
+              px={6}
+              h="45px"
+              fontSize="sm"
+              fontWeight="600"
+              color={selectedCategory ? primary : textColor}
+              borderColor={selectedCategory ? primary : borderColor}
+              borderWidth={selectedCategory ? "2px" : "1px"}
+              bg={selectedCategory ? `${primary}15` : "transparent"}
+              _hover={{ bg: hoverBg }}
+            >
+              {selectedCategory || "קטגוריה"}
+            </MenuButton>
+            <MenuList
+              dir="rtl"
+              borderColor={borderColor}
+              boxShadow="lg"
+              maxH="300px"
+              overflowY="auto"
+            >
+              <ChakraMenuItem
+                _hover={{ bg: hoverBg }}
+                fontSize="sm"
+                fontWeight={!selectedCategory ? "700" : "400"}
+                color={!selectedCategory ? primary : textColor}
+                onClick={() => setSelectedCategory(null)}
+              >
+                הצג הכל
+              </ChakraMenuItem>
+              <Divider my={2} borderColor={borderColor} />
+              {categories.map((category) => (
+                <ChakraMenuItem
+                  key={category}
+                  _hover={{ bg: hoverBg }}
+                  fontSize="sm"
+                  fontWeight={selectedCategory === category ? "700" : "400"}
+                  color={selectedCategory === category ? primary : textColor}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </ChakraMenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           <Button
             leftIcon={<RefreshCw size={18} />}
             variant="outline"
@@ -452,7 +562,9 @@ const DocsIndex = () => {
         </HStack>
 
         <Text fontSize="sm" color={secondaryText}>
-          {documents.length} מסמכים במערכת
+          {selectedCategory
+            ? `${filteredDocuments.length} מסמכים מתוך ${documents.length} (${selectedCategory})`
+            : `${documents.length} מסמכים במערכת`}
         </Text>
       </Flex>
 
@@ -681,7 +793,7 @@ const DocsIndex = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {documents.map((doc, index) => (
+            {filteredDocuments.map((doc, index) => (
               <Tr
                 key={doc.id}
                 bg={index % 2 === 0 ? bgColor : stripedBg}
@@ -844,7 +956,7 @@ const DocsIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-12 מתוך 12 מסמכים
+          מציג 1-{filteredDocuments.length} מתוך {filteredDocuments.length} מסמכים
         </Text>
         <HStack spacing={2}>
           <Button

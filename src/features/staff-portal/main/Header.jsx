@@ -99,7 +99,10 @@ const Header = () => {
               <Text fontWeight="600" fontSize="sm" color={textColor}>
                 שובל חיים אשכנזי
               </Text>
-              <Text fontSize="xs" color={useColorModeValue("gray.500", "gray.400")}>
+              <Text
+                fontSize="xs"
+                color={useColorModeValue("gray.500", "gray.400")}
+              >
                 shoval@tractorsglass.com
               </Text>
             </Box>

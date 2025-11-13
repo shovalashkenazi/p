@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -40,6 +40,8 @@ import {
   Upload,
   RefreshCw,
   Printer,
+  Tag,
+  ChevronDown,
 } from "lucide-react";
 import ProductModal from "./ProductModal";
 
@@ -55,6 +57,7 @@ const ProductIndex = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // נתוני דוגמה - 12 שורות עם שדות חדשים
   const products = [
@@ -228,6 +231,26 @@ const ProductIndex = () => {
     },
   ];
 
+  // כל הקטגוריות הזמינות במערכת
+  const categories = [
+    "חלונות",
+    "מראות",
+    "פנסים",
+    "זכוכיות",
+    "זכוכיות טרקטורים",
+    "זכוכיות מחפרים",
+    "דלתות",
+    "משטחים",
+    "אביזרים",
+    "חלקי חילוף",
+  ];
+
+  // סינון פריטים לפי קטגוריה נבחרת
+  const filteredProducts = useMemo(() => {
+    if (!selectedCategory) return products;
+    return products.filter((product) => product.category === selectedCategory);
+  }, [selectedCategory, products]);
+
   const getStatusColor = (status) => {
     switch (status) {
       case "זמין":
@@ -255,8 +278,11 @@ const ProductIndex = () => {
     return "זמין";
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = (category = null) => {
     setSelectedProduct(null);
+    if (category) {
+      setSelectedCategory(category);
+    }
     onOpen();
   };
 
@@ -288,23 +314,44 @@ const ProductIndex = () => {
       {/* Action Bar - Row 1 */}
       <Flex justify="space-between" align="center" mb={4}>
         <HStack spacing={3}>
-          <Button
-            leftIcon={<Plus size={20} />}
-            bg={primary}
-            color="white"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="md"
-            fontWeight="600"
-            _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
-            _active={{ transform: "translateY(0)" }}
-            transition="all 0.2s"
-            boxShadow="md"
-            onClick={handleAddProduct}
-          >
-            הוסף מוצר
-          </Button>
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<Plus size={20} />}
+              rightIcon={<ChevronDown size={16} />}
+              bg={primary}
+              color="white"
+              borderRadius="full"
+              px={6}
+              h="45px"
+              fontSize="md"
+              fontWeight="600"
+              _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
+              _active={{ transform: "translateY(0)" }}
+              transition="all 0.2s"
+              boxShadow="md"
+            >
+              הוסף מוצר
+            </MenuButton>
+            <MenuList
+              dir="rtl"
+              borderColor={borderColor}
+              boxShadow="lg"
+              maxH="300px"
+              overflowY="auto"
+            >
+              {categories.map((category) => (
+                <ChakraMenuItem
+                  key={category}
+                  _hover={{ bg: hoverBg }}
+                  fontSize="sm"
+                  onClick={() => handleAddProduct(category)}
+                >
+                  {category}
+                </ChakraMenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           <Button
             leftIcon={<Filter size={18} />}
             variant="outline"
@@ -335,6 +382,57 @@ const ProductIndex = () => {
           >
             עמודות
           </Button>
+          {/* category filter button */}
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<Tag size={18} />}
+              rightIcon={<ChevronDown size={16} />}
+              variant="outline"
+              borderRadius="full"
+              px={6}
+              h="45px"
+              fontSize="sm"
+              fontWeight="600"
+              color={selectedCategory ? primary : textColor}
+              borderColor={selectedCategory ? primary : borderColor}
+              borderWidth={selectedCategory ? "2px" : "1px"}
+              bg={selectedCategory ? `${primary}15` : "transparent"}
+              _hover={{ bg: hoverBg }}
+            >
+              {selectedCategory || "קטגוריה"}
+            </MenuButton>
+            <MenuList
+              dir="rtl"
+              borderColor={borderColor}
+              boxShadow="lg"
+              maxH="300px"
+              overflowY="auto"
+            >
+              <ChakraMenuItem
+                _hover={{ bg: hoverBg }}
+                fontSize="sm"
+                fontWeight={!selectedCategory ? "700" : "400"}
+                color={!selectedCategory ? primary : textColor}
+                onClick={() => setSelectedCategory(null)}
+              >
+                הצג הכל
+              </ChakraMenuItem>
+              <Divider my={2} borderColor={borderColor} />
+              {categories.map((category) => (
+                <ChakraMenuItem
+                  key={category}
+                  _hover={{ bg: hoverBg }}
+                  fontSize="sm"
+                  fontWeight={selectedCategory === category ? "700" : "400"}
+                  color={selectedCategory === category ? primary : textColor}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </ChakraMenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           {/* added refresh button */}
           <Button
             leftIcon={<RefreshCw size={18} />}
@@ -405,7 +503,9 @@ const ProductIndex = () => {
         </HStack>
 
         <Text fontSize="sm" color={secondaryText}>
-          {products.length} פריטים במערכת
+          {selectedCategory
+            ? `${filteredProducts.length} פריטים מתוך ${products.length} (${selectedCategory})`
+            : `${products.length} פריטים במערכת`}
         </Text>
       </Flex>
 
@@ -588,7 +688,7 @@ const ProductIndex = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <Tr
                 key={product.id}
                 bg={index % 2 === 0 ? bgColor : stripedBg}
@@ -777,7 +877,7 @@ const ProductIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-12 מתוך 12 פריטים
+          מציג 1-{filteredProducts.length} מתוך {filteredProducts.length} פריטים
         </Text>
         <HStack spacing={2}>
           <Button

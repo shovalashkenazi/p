@@ -42,6 +42,10 @@ const Sidebar = () => {
   const activeBg = useColorModeValue("white", "gray.600");
 
   const [isSubscriptionsOpen, setIsSubscriptionsOpen] = useState(false);
+  const [isAccountsOpen, setIsAccountsOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [isWarehousesOpen, setIsWarehousesOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const menuItems = [
     {
@@ -50,35 +54,19 @@ const Sidebar = () => {
       path: "/dashboard/worker/main",
     },
     {
-      icon: Package,
-      label: "פריטים",
-      path: "/dashboard/worker/products",
+      icon: BookOpen,
+      label: "קטלוג",
+      path: "/dashboard/worker/catalog",
+    },
+    {
+      icon: Database,
+      label: "נתוני כלים",
+      path: "/dashboard/worker/gov",
     },
     {
       icon: Briefcase,
       label: "הנהלת חשבונות",
       path: "/dashboard/worker/docs",
-    },
-    {
-      icon: Database,
-      label: "נתוני GOV",
-      path: "/dashboard/worker/gov",
-    },
-    {
-      icon: BookOpen,
-      label: "קטלוג",
-      path: "/dashboard/worker/catalog",
-    },
-
-    {
-      icon: Users,
-      label: "לקוחות",
-      path: "/dashboard/worker/customers",
-    },
-    {
-      icon: Warehouse,
-      label: "מחסנים ומלאי",
-      path: "/dashboard/worker/warehouse",
     },
     {
       icon: Route,
@@ -87,6 +75,7 @@ const Sidebar = () => {
     },
   ];
 
+  // תפריט מנויים
   const subscriptionsSubMenu = [
     {
       icon: FileText,
@@ -102,6 +91,102 @@ const Sidebar = () => {
       icon: Shield,
       label: "מנויים",
       path: "/dashboard/worker/subscriptions/list",
+    },
+  ];
+
+  // תפריט חשבונות
+  const accountsSubMenu = [
+    {
+      icon: Users,
+      label: "לקוחות",
+      path: "/dashboard/worker/accounts/customers",
+    },
+    {
+      icon: Users,
+      label: "עובדים",
+      path: "/dashboard/worker/accounts/workers",
+    },
+    {
+      icon: Users,
+      label: "סוכנים",
+      path: "/dashboard/worker/accounts/agents",
+    },
+    {
+      icon: Users,
+      label: "מתקינים",
+      path: "/dashboard/worker/accounts/installers",
+    },
+    {
+      icon: Users,
+      label: "מחסנאים",
+      path: "/dashboard/worker/accounts/storekeepers",
+    },
+    {
+      icon: Users,
+      label: "ספקים",
+      path: "/dashboard/worker/accounts/suppliers",
+    },
+  ];
+
+  // תפריט פריטים
+  const productsSubMenu = [
+    {
+      icon: Package,
+      label: "ניהול פריטים",
+      path: "/dashboard/worker/products",
+    },
+    {
+      icon: FileText,
+      label: "קטגוריות פריטים",
+      path: "/dashboard/worker/products/categories",
+    },
+  ];
+
+  // תפריט מחסנים
+  const warehousesSubMenu = [
+    {
+      icon: Warehouse,
+      label: "פורטל מחסנים",
+      path: "/dashboard/worker/warehouses/portal",
+    },
+    {
+      icon: Warehouse,
+      label: "ניהול מחסנים",
+      path: "/dashboard/worker/warehouses/management",
+    },
+    {
+      icon: FileText,
+      label: "תעודת כניסה למלאי",
+      path: "/dashboard/worker/warehouses/stock-in",
+    },
+    {
+      icon: FileText,
+      label: "תעודת יציאה מהמלאי",
+      path: "/dashboard/worker/warehouses/stock-out",
+    },
+    {
+      icon: FileText,
+      label: "תעודת העברה בין מחסנים",
+      path: "/dashboard/worker/warehouses/transfer",
+    },
+    {
+      icon: FileText,
+      label: "הזמנת רכש",
+      path: "/dashboard/worker/warehouses/purchase-order",
+    },
+    {
+      icon: FileText,
+      label: "ספירת מלאי",
+      path: "/dashboard/worker/warehouses/stock-count",
+    },
+  ];
+
+  // תפריט הגדרות
+  const settingsSubMenu = [
+    {
+      icon: Settings,
+      label: "ניהול סטטוסים",
+      path: "/dashboard/worker/settings/statuses",
     },
   ];
 
@@ -232,8 +317,7 @@ const Sidebar = () => {
                       location.pathname === item.path ? activeBg : "transparent"
                     }
                     _hover={{
-                      bg:
-                        location.pathname === item.path ? activeBg : hoverBg,
+                      bg: location.pathname === item.path ? activeBg : hoverBg,
                     }}
                     transition="all 0.2s ease-in-out"
                     py={2}
@@ -269,7 +353,7 @@ const Sidebar = () => {
 
   return (
     <Box
-      w="280px"
+      w="250px"
       h="100%"
       bg={bgColor}
       border="1px solid"
@@ -297,7 +381,7 @@ const Sidebar = () => {
     >
       {/* Logo */}
       <Flex mb={6} justify="center" align="center">
-        <Image src={logo} alt="Logo" w="180px" objectFit="contain" />
+        <Image src={logo} alt="Logo" w="140px" />
       </Flex>
 
       <Divider mb={6} borderColor={borderColor} />
@@ -308,6 +392,24 @@ const Sidebar = () => {
           <MenuItem key={index} {...item} />
         ))}
 
+        {/* Products Collapsible Menu */}
+        <CollapsibleMenuItem
+          icon={Package}
+          label="פריטים"
+          subItems={productsSubMenu}
+          isOpen={isProductsOpen}
+          onToggle={() => setIsProductsOpen(!isProductsOpen)}
+        />
+
+        {/* Accounts Collapsible Menu */}
+        <CollapsibleMenuItem
+          icon={Users}
+          label="חשבונות"
+          subItems={accountsSubMenu}
+          isOpen={isAccountsOpen}
+          onToggle={() => setIsAccountsOpen(!isAccountsOpen)}
+        />
+
         {/* Subscriptions Collapsible Menu */}
         <CollapsibleMenuItem
           icon={Shield}
@@ -315,6 +417,24 @@ const Sidebar = () => {
           subItems={subscriptionsSubMenu}
           isOpen={isSubscriptionsOpen}
           onToggle={() => setIsSubscriptionsOpen(!isSubscriptionsOpen)}
+        />
+
+        {/* Warehouses Collapsible Menu */}
+        <CollapsibleMenuItem
+          icon={Warehouse}
+          label="מחסנים ומלאי"
+          subItems={warehousesSubMenu}
+          isOpen={isWarehousesOpen}
+          onToggle={() => setIsWarehousesOpen(!isWarehousesOpen)}
+        />
+
+        {/* Settings Collapsible Menu */}
+        <CollapsibleMenuItem
+          icon={Settings}
+          label="הגדרות"
+          subItems={settingsSubMenu}
+          isOpen={isSettingsOpen}
+          onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
         />
       </VStack>
     </Box>
