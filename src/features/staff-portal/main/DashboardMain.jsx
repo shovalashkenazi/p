@@ -182,6 +182,18 @@ const DashboardMain = () => {
     }
   };
 
+  // נתוני דמה לנהגים
+  const drivers = [
+    { id: 1, name: "יוסי כהן", completed: 8, inProgress: 3, total: 15 },
+    { id: 2, name: "דוד לוי", completed: 6, inProgress: 2, total: 12 },
+    { id: 3, name: "משה אברהם", completed: 10, inProgress: 4, total: 18 },
+    { id: 4, name: "רועי ישראלי", completed: 5, inProgress: 1, total: 9 },
+    { id: 5, name: "עמית שלום", completed: 7, inProgress: 2, total: 11 },
+    { id: 6, name: "אלון מזרחי", completed: 4, inProgress: 3, total: 10 },
+    { id: 7, name: "גיא פרץ", completed: 9, inProgress: 5, total: 16 },
+    { id: 8, name: "אורי דהן", completed: 3, inProgress: 2, total: 8 },
+  ];
+
   return (
     <Box p={8} dir="rtl">
       {/* כותרת העמוד */}
@@ -311,8 +323,9 @@ const DashboardMain = () => {
 
       {/* החלק התחתון */}
       <Grid templateColumns="repeat(3, 1fr)" gap={6} alignItems="stretch">
+        {/* שורה ראשונה: 10 מסמכים אחרונים + נהגים */}
         {/* 10 מסמכים אחרונים */}
-        <GridItem colSpan={1} h="100%">
+        <GridItem colSpan={1} h="400px">
           <Box
             bg={cardBg}
             p={6}
@@ -467,8 +480,206 @@ const DashboardMain = () => {
           </Box>
         </GridItem>
 
+        {/* נהגים */}
+        <GridItem colSpan={2} h="400px">
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="2xl"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+            h="100%"
+            transition="all 0.3s"
+            _hover={{ boxShadow: "lg" }}
+            display="flex"
+            flexDirection="column"
+          >
+            <Text fontSize="lg" fontWeight="700" color={textColor} mb={4}>
+              נהגים
+            </Text>
+            <Box
+              flex="1"
+              overflowY="auto"
+              css={{
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#CBD5E0",
+                  borderRadius: "10px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  background: "#A0AEC0",
+                },
+              }}
+            >
+              <Table variant="simple" size="sm">
+                <Thead position="sticky" top={0} bg={cardBg} zIndex={1}>
+                  <Tr>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      שם נהג
+                    </Th>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      הושלם
+                    </Th>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      בביצוע
+                    </Th>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      סה"כ
+                    </Th>
+                    <Th
+                      textAlign="right"
+                      fontSize="10px"
+                      fontWeight="700"
+                      color={textColor}
+                      textTransform="none"
+                      borderColor={borderColor}
+                      py={2}
+                      px={2}
+                    >
+                      התקדמות
+                    </Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {drivers.map((driver, index) => {
+                    const progress = Math.round(
+                      (driver.completed / driver.total) * 100
+                    );
+                    return (
+                      <Tr
+                        key={driver.id}
+                        bg={
+                          index % 2 === 0
+                            ? cardBg
+                            : useColorModeValue("gray.50", "gray.900")
+                        }
+                        _hover={{ bg: hoverBg }}
+                        transition="background 0.2s"
+                      >
+                        <Td
+                          borderColor={borderColor}
+                          py={2}
+                          px={2}
+                          fontSize="11px"
+                          fontWeight="600"
+                        >
+                          {driver.name}
+                        </Td>
+                        <Td borderColor={borderColor} py={2} px={2}>
+                          <Badge
+                            colorScheme="green"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                            fontSize="9px"
+                            fontWeight="600"
+                          >
+                            {driver.completed}
+                          </Badge>
+                        </Td>
+                        <Td borderColor={borderColor} py={2} px={2}>
+                          <Badge
+                            colorScheme="orange"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                            fontSize="9px"
+                            fontWeight="600"
+                          >
+                            {driver.inProgress}
+                          </Badge>
+                        </Td>
+                        <Td
+                          borderColor={borderColor}
+                          py={2}
+                          px={2}
+                          fontSize="11px"
+                          fontWeight="600"
+                        >
+                          {driver.total}
+                        </Td>
+                        <Td borderColor={borderColor} py={2} px={2}>
+                          <HStack spacing={2}>
+                            <Box flex="1">
+                              <Box
+                                h="6px"
+                                bg={useColorModeValue("gray.200", "gray.700")}
+                                borderRadius="full"
+                                overflow="hidden"
+                              >
+                                <Box
+                                  h="full"
+                                  bg={
+                                    progress >= 70
+                                      ? "green.400"
+                                      : progress >= 40
+                                      ? "orange.400"
+                                      : "red.400"
+                                  }
+                                  w={`${progress}%`}
+                                  transition="width 0.3s"
+                                />
+                              </Box>
+                            </Box>
+                            <Text fontSize="10px" fontWeight="600" minW="35px">
+                              {progress}%
+                            </Text>
+                          </HStack>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+              </Table>
+            </Box>
+          </Box>
+        </GridItem>
+
+        {/* שורה שנייה: תמיכה מרחוק + פרויקטים + התקדמות פרויקטים */}
         {/* תמיכה מרחוק */}
-        <GridItem h="100%">
+        <GridItem h="300px">
           <Box
             bg={cardBg}
             p={6}
@@ -652,7 +863,7 @@ const DashboardMain = () => {
         </GridItem>
 
         {/* רשימת פרויקטים */}
-        <GridItem h="100%">
+        <GridItem h="300px">
           <Box
             bg={cardBg}
             p={6}
@@ -705,76 +916,8 @@ const DashboardMain = () => {
           </Box>
         </GridItem>
 
-        {/* שיתוף פעולה צוותי */}
-        <GridItem colSpan={2} h="100%">
-          <Box
-            bg={cardBg}
-            p={6}
-            borderRadius="2xl"
-            boxShadow="md"
-            border="1px solid"
-            borderColor={borderColor}
-            h="100%"
-            transition="all 0.3s"
-            _hover={{ boxShadow: "lg" }}
-          >
-            <Flex justify="space-between" align="center" mb={6}>
-              <Text fontSize="lg" fontWeight="700" color={textColor}>
-                שיתוף פעולה צוותי
-              </Text>
-              <Button
-                size="xs"
-                variant="outline"
-                borderRadius="full"
-                borderColor={primary}
-                color={primary}
-                _hover={{ bg: "primary.100", color: "white" }}
-              >
-                + הוסף חבר צוות
-              </Button>
-            </Flex>
-            <VStack align="stretch" spacing={3}>
-              {[
-                { name: "אלכסנדרה דף", task: "GitHub", status: "הושלם" },
-                {
-                  name: "אדווין אדניקה",
-                  task: "אימות משתמשים",
-                  status: "בתהליך",
-                },
-              ].map((member, index) => (
-                <Flex key={index} justify="space-between" align="center">
-                  <HStack spacing={2}>
-                    <Avatar
-                      name={member.name}
-                      size="xs"
-                      bg={primary}
-                      color="white"
-                    />
-                    <Box>
-                      <Text fontSize="sm" fontWeight="600">
-                        {member.name}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
-                        עובד על {member.task}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <Badge
-                    colorScheme="orange"
-                    borderRadius="full"
-                    px={2}
-                    fontSize="10px"
-                  >
-                    {member.status}
-                  </Badge>
-                </Flex>
-              ))}
-            </VStack>
-          </Box>
-        </GridItem>
-
         {/* התקדמות פרויקטים */}
-        <GridItem h="100%">
+        <GridItem h="300px">
           <Box
             bg={cardBg}
             p={6}
