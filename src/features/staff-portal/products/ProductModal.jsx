@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   ModalCloseButton,
   Button,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  HStack,
+  Box,
+  Text,
+  useColorModeValue,
   FormControl,
   FormLabel,
   Input,
@@ -23,21 +21,26 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Checkbox,
   VStack,
-  HStack,
   Grid,
   GridItem,
-  useColorModeValue,
-  Text,
-  Box,
-  Image,
-  IconButton,
-  Stack,
+  FormErrorMessage,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Checkbox,
 } from "@chakra-ui/react";
-import { Upload, X, Plus } from "lucide-react";
+import { useProductActions, useProductModal } from "./hooks";
+import { useGetCategoriesQuery } from "../categories/services/categoriesApiSlice";
 
-const ProductModal = ({ isOpen, onClose, product }) => {
+const ProductModal = ({ isOpen, onClose }) => {
+  const { selectedProduct, isEditMode } = useProductModal();
+  const { createProduct, updateProduct, isCreating, isUpdating } = useProductActions();
+  const { data: categories = [] } = useGetCategoriesQuery();
+
+  // ✅ Theme colors
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -46,46 +49,253 @@ const ProductModal = ({ isOpen, onClose, product }) => {
   const hoverBg = useColorModeValue("gray.50", "gray.700");
 
   const [tabIndex, setTabIndex] = useState(0);
+
+  // ✅ Form state
   const [formData, setFormData] = useState({
     // כללי
-    name: product?.name || "",
-    sku: product?.sku || "",
-    category: product?.category || "",
+    name: "",
+    catalogNumber: "",
+    category: "",
     description: "",
+    barcode: "",
+    isActive: true,
+    isAvailable: true,
+    isFeatured: false,
     // פרטים כספיים
-    price: product?.price || 0,
+    price: 0,
     costPrice: 0,
     taxRate: 17,
     currency: "ILS",
     // מלאי
-    stock: product?.stock || 0,
+    stock: 0,
     minStock: 5,
     maxStock: 100,
     warehouse: "",
+    lowStockAlert: false,
+    outOfStockAlert: false,
+    autoReorder: false,
     // תאימות
     compatibleModels: [],
+    width: "",
+    height: "",
+    thickness: "",
+    weight: "",
     // תמונות
     images: [],
     // ספקים
-    suppliers: [product?.supplier || ""],
+    supplier: "",
+    supplierSku: "",
+    minOrderQuantity: 1,
+    deliveryTime: 3,
     // הערות
     notes: "",
     attachments: [],
   });
 
-  const handleSave = () => {
-    console.log("Saving product:", formData);
+  const [errors, setErrors] = useState({
+    name: "",
+    catalogNumber: "",
+    category: "",
+    price: "",
+  });
+
+  // ✅ Update form when selectedProduct changes
+  useEffect(() => {
+    if (selectedProduct) {
+      setFormData({
+        name: selectedProduct.name || "",
+        catalogNumber: selectedProduct.catalogNumber || "",
+        category: selectedProduct.category || "",
+        description: selectedProduct.description || "",
+        barcode: selectedProduct.barcode || "",
+        isActive: selectedProduct.isActive ?? true,
+        isAvailable: selectedProduct.isAvailable ?? true,
+        isFeatured: selectedProduct.isFeatured ?? false,
+        price: selectedProduct.price || 0,
+        costPrice: selectedProduct.costPrice || 0,
+        taxRate: selectedProduct.taxRate || 17,
+        currency: selectedProduct.currency || "ILS",
+        stock: selectedProduct.stock || 0,
+        minStock: selectedProduct.minStock || 5,
+        maxStock: selectedProduct.maxStock || 100,
+        warehouse: selectedProduct.warehouse || "",
+        lowStockAlert: selectedProduct.lowStockAlert || false,
+        outOfStockAlert: selectedProduct.outOfStockAlert || false,
+        autoReorder: selectedProduct.autoReorder || false,
+        compatibleModels: selectedProduct.compatibleModels || [],
+        width: selectedProduct.width || "",
+        height: selectedProduct.height || "",
+        thickness: selectedProduct.thickness || "",
+        weight: selectedProduct.weight || "",
+        images: selectedProduct.images || [],
+        supplier: selectedProduct.supplier || "",
+        supplierSku: selectedProduct.supplierSku || "",
+        minOrderQuantity: selectedProduct.minOrderQuantity || 1,
+        deliveryTime: selectedProduct.deliveryTime || 3,
+        notes: selectedProduct.notes || "",
+        attachments: selectedProduct.attachments || [],
+      });
+    } else {
+      // Reset form for new product
+      setFormData({
+        name: "",
+        catalogNumber: "",
+        category: "",
+        description: "",
+        barcode: "",
+        isActive: true,
+        isAvailable: true,
+        isFeatured: false,
+        price: 0,
+        costPrice: 0,
+        taxRate: 17,
+        currency: "ILS",
+        stock: 0,
+        minStock: 5,
+        maxStock: 100,
+        warehouse: "",
+        lowStockAlert: false,
+        outOfStockAlert: false,
+        autoReorder: false,
+        compatibleModels: [],
+        width: "",
+        height: "",
+        thickness: "",
+        weight: "",
+        images: [],
+        supplier: "",
+        supplierSku: "",
+        minOrderQuantity: 1,
+        deliveryTime: 3,
+        notes: "",
+        attachments: [],
+      });
+    }
+    setErrors({ name: "", catalogNumber: "", category: "", price: "" });
+    setTabIndex(0);
+  }, [selectedProduct, isOpen]);
+
+  // ✅ Validate form
+  const validateForm = () => {
+    const newErrors = { name: "", catalogNumber: "", category: "", price: "" };
+    let isValid = true;
+
+    if (!formData.name || formData.name.trim().length < 2) {
+      newErrors.name = "שם מוצר חייב להכיל לפחות 2 תווים";
+      isValid = false;
+    }
+
+    if (!formData.catalogNumber || formData.catalogNumber.trim().length < 1) {
+      newErrors.catalogNumber = "מק״ט הוא שדה חובה";
+      isValid = false;
+    }
+
+    if (!formData.category) {
+      newErrors.category = "יש לבחור קטגוריה";
+      isValid = false;
+    }
+
+    if (!formData.price || formData.price <= 0) {
+      newErrors.price = "מחיר חייב להיות גדול מ-0";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // ✅ Handle save (create or update)
+  const handleSave = async () => {
+    if (!validateForm()) {
+      setTabIndex(0); // Go to first tab if validation fails
+      return;
+    }
+
+    let result;
+    if (isEditMode) {
+      // Update existing product - keep all original fields
+      result = await updateProduct({
+        ...selectedProduct, // Keep all original product fields
+        ...formData, // Override with form data
+      });
+    } else {
+      // Create new product
+      result = await createProduct(formData);
+    }
+
+    // Close modal on success
+    if (result.success) {
+      handleClose();
+    }
+  };
+
+  // ✅ Handle close
+  const handleClose = () => {
+    setFormData({
+      name: "",
+      catalogNumber: "",
+      category: "",
+      description: "",
+      barcode: "",
+      isActive: true,
+      isAvailable: true,
+      isFeatured: false,
+      price: 0,
+      costPrice: 0,
+      taxRate: 17,
+      currency: "ILS",
+      stock: 0,
+      minStock: 5,
+      maxStock: 100,
+      warehouse: "",
+      lowStockAlert: false,
+      outOfStockAlert: false,
+      autoReorder: false,
+      compatibleModels: [],
+      width: "",
+      height: "",
+      thickness: "",
+      weight: "",
+      images: [],
+      supplier: "",
+      supplierSku: "",
+      minOrderQuantity: 1,
+      deliveryTime: 3,
+      notes: "",
+      attachments: [],
+    });
+    setErrors({ name: "", catalogNumber: "", category: "", price: "" });
+    setTabIndex(0);
     onClose();
   };
 
+  const isLoading = isCreating || isUpdating;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="6xl" scrollBehavior="inside">
-      <ModalOverlay />
-      <ModalContent dir="rtl" maxH="90vh">
-        <ModalHeader borderBottom="1px solid" borderColor={borderColor}>
-          {product ? "עריכת מוצר" : "הוספת מוצר חדש"}
+    <Modal isOpen={isOpen} onClose={handleClose} size="6xl" scrollBehavior="inside">
+      <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+      <ModalContent dir="rtl" maxH="90vh" borderRadius="2xl" boxShadow="2xl">
+        <ModalHeader borderBottom="1px solid" borderColor={borderColor} py={6} px={8}>
+          <HStack justify="space-between">
+            <Box>
+              <Text fontSize="2xl" fontWeight="700" color={textColor}>
+                {isEditMode ? "עריכת מוצר" : "הוספת מוצר חדש"}
+              </Text>
+              <Text fontSize="sm" color={secondaryText} mt={1}>
+                {isEditMode
+                  ? `עדכון פרטי: ${selectedProduct?.name || ""}`
+                  : "הזן את פרטי המוצר"}
+              </Text>
+            </Box>
+          </HStack>
         </ModalHeader>
-        <ModalCloseButton />
+
+        <ModalCloseButton
+          top={6}
+          left={6}
+          borderRadius="full"
+          _hover={{ bg: hoverBg }}
+        />
 
         <ModalBody p={0}>
           <Tabs index={tabIndex} onChange={setTabIndex} colorScheme="orange">
@@ -118,13 +328,10 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                 תאימות
               </Tab>
               <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
-                תמונות
-              </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
                 ספקים
               </Tab>
               <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
-                הערות / קבצים
+                הערות
               </Tab>
             </TabList>
 
@@ -134,7 +341,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                 <VStack spacing={6} align="stretch">
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <GridItem>
-                      <FormControl isRequired>
+                      <FormControl isRequired isInvalid={!!errors.name}>
                         <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                           שם המוצר
                         </FormLabel>
@@ -144,25 +351,27 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                           placeholder="לדוגמה: זכוכית קדמית טרקטור"
                           borderRadius="lg"
                         />
+                        {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
-                      <FormControl isRequired>
+                      <FormControl isRequired isInvalid={!!errors.catalogNumber}>
                         <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                           מק״ט
                         </FormLabel>
                         <Input
-                          value={formData.sku}
-                          onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                          value={formData.catalogNumber}
+                          onChange={(e) => setFormData({ ...formData, catalogNumber: e.target.value })}
                           placeholder="לדוגמה: JD-6430-FG"
                           borderRadius="lg"
                         />
+                        {errors.catalogNumber && <FormErrorMessage>{errors.catalogNumber}</FormErrorMessage>}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
-                      <FormControl isRequired>
+                      <FormControl isRequired isInvalid={!!errors.category}>
                         <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                           קטגוריה
                         </FormLabel>
@@ -172,11 +381,13 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                           borderRadius="lg"
                         >
                           <option value="">בחר קטגוריה</option>
-                          <option value="זכוכיות טרקטורים">זכוכיות טרקטורים</option>
-                          <option value="זכוכיות מחפרים">זכוכיות מחפרים</option>
-                          <option value="זכוכיות מלגזות">זכוכיות מלגזות</option>
-                          <option value="אביזרים">אביזרים</option>
+                          {categories.map((cat) => (
+                            <option key={cat._id} value={cat.value}>
+                              {cat.label}
+                            </option>
+                          ))}
                         </Select>
+                        {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
                       </FormControl>
                     </GridItem>
 
@@ -186,6 +397,8 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                           ברקוד
                         </FormLabel>
                         <Input
+                          value={formData.barcode}
+                          onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
                           placeholder="ברקוד אופציונלי"
                           borderRadius="lg"
                         />
@@ -207,9 +420,27 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                   </FormControl>
 
                   <HStack spacing={4}>
-                    <Checkbox colorScheme="orange">פריט פעיל</Checkbox>
-                    <Checkbox colorScheme="orange">זמין להזמנה</Checkbox>
-                    <Checkbox colorScheme="orange">מוצר מומלץ</Checkbox>
+                    <Checkbox
+                      colorScheme="orange"
+                      isChecked={formData.isActive}
+                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    >
+                      פריט פעיל
+                    </Checkbox>
+                    <Checkbox
+                      colorScheme="orange"
+                      isChecked={formData.isAvailable}
+                      onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                    >
+                      זמין להזמנה
+                    </Checkbox>
+                    <Checkbox
+                      colorScheme="orange"
+                      isChecked={formData.isFeatured}
+                      onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    >
+                      מוצר מומלץ
+                    </Checkbox>
                   </HStack>
                 </VStack>
               </TabPanel>
@@ -219,13 +450,13 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                 <VStack spacing={6} align="stretch">
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <GridItem>
-                      <FormControl isRequired>
+                      <FormControl isRequired isInvalid={!!errors.price}>
                         <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                           מחיר מכירה
                         </FormLabel>
                         <NumberInput
                           value={formData.price}
-                          onChange={(value) => setFormData({ ...formData, price: value })}
+                          onChange={(value) => setFormData({ ...formData, price: parseFloat(value) || 0 })}
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -234,6 +465,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                             <NumberDecrementStepper />
                           </NumberInputStepper>
                         </NumberInput>
+                        {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
                       </FormControl>
                     </GridItem>
 
@@ -244,7 +476,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                         </FormLabel>
                         <NumberInput
                           value={formData.costPrice}
-                          onChange={(value) => setFormData({ ...formData, costPrice: value })}
+                          onChange={(value) => setFormData({ ...formData, costPrice: parseFloat(value) || 0 })}
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -263,7 +495,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                         </FormLabel>
                         <NumberInput
                           value={formData.taxRate}
-                          onChange={(value) => setFormData({ ...formData, taxRate: value })}
+                          onChange={(value) => setFormData({ ...formData, taxRate: parseFloat(value) || 0 })}
                           min={0}
                           max={100}
                         >
@@ -335,7 +567,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                         </FormLabel>
                         <NumberInput
                           value={formData.stock}
-                          onChange={(value) => setFormData({ ...formData, stock: value })}
+                          onChange={(value) => setFormData({ ...formData, stock: parseInt(value) || 0 })}
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -372,7 +604,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                         </FormLabel>
                         <NumberInput
                           value={formData.minStock}
-                          onChange={(value) => setFormData({ ...formData, minStock: value })}
+                          onChange={(value) => setFormData({ ...formData, minStock: parseInt(value) || 0 })}
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -391,7 +623,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                         </FormLabel>
                         <NumberInput
                           value={formData.maxStock}
-                          onChange={(value) => setFormData({ ...formData, maxStock: value })}
+                          onChange={(value) => setFormData({ ...formData, maxStock: parseInt(value) || 0 })}
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -409,13 +641,25 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                       התראות מלאי
                     </Text>
                     <VStack align="stretch" spacing={2}>
-                      <Checkbox colorScheme="orange">
+                      <Checkbox
+                        colorScheme="orange"
+                        isChecked={formData.lowStockAlert}
+                        onChange={(e) => setFormData({ ...formData, lowStockAlert: e.target.checked })}
+                      >
                         שלח התראה כאשר המלאי נמוך מ-{formData.minStock} יחידות
                       </Checkbox>
-                      <Checkbox colorScheme="orange">
+                      <Checkbox
+                        colorScheme="orange"
+                        isChecked={formData.outOfStockAlert}
+                        onChange={(e) => setFormData({ ...formData, outOfStockAlert: e.target.checked })}
+                      >
                         שלח התראה כאשר המלאי מגיע ל-0
                       </Checkbox>
-                      <Checkbox colorScheme="orange">
+                      <Checkbox
+                        colorScheme="orange"
+                        isChecked={formData.autoReorder}
+                        onChange={(e) => setFormData({ ...formData, autoReorder: e.target.checked })}
+                      >
                         הזמן אוטומטית כאשר המלאי נמוך
                       </Checkbox>
                     </VStack>
@@ -428,56 +672,27 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                 <VStack spacing={6} align="stretch">
                   <FormControl>
                     <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
-                      דגמי רכב תואמים
-                    </FormLabel>
-                    <HStack>
-                      <Input
-                        placeholder="הזן דגם רכב (לדוגמה: ג'ון דיר 6430)"
-                        borderRadius="lg"
-                      />
-                      <IconButton
-                        icon={<Plus size={18} />}
-                        colorScheme="orange"
-                        borderRadius="lg"
-                        aria-label="הוסף דגם"
-                      />
-                    </HStack>
-                  </FormControl>
-
-                  <Box>
-                    <Text fontSize="sm" fontWeight="600" color={textColor} mb={3}>
-                      דגמים תואמים
-                    </Text>
-                    <Stack spacing={2}>
-                      {["ג'ון דיר 6430", "קייס IH 340", "מסי פרגוסון 6713"].map((model, idx) => (
-                        <HStack
-                          key={idx}
-                          p={3}
-                          bg={hoverBg}
-                          borderRadius="lg"
-                          justify="space-between"
-                        >
-                          <Text fontSize="sm">{model}</Text>
-                          <IconButton
-                            icon={<X size={16} />}
-                            size="sm"
-                            variant="ghost"
-                            aria-label="הסר"
-                            color="red.500"
-                          />
-                        </HStack>
-                      ))}
-                    </Stack>
-                  </Box>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                       מידות (ס״מ)
                     </FormLabel>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                      <Input placeholder="רוחב" borderRadius="lg" />
-                      <Input placeholder="גובה" borderRadius="lg" />
-                      <Input placeholder="עובי" borderRadius="lg" />
+                      <Input
+                        placeholder="רוחב"
+                        value={formData.width}
+                        onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                        borderRadius="lg"
+                      />
+                      <Input
+                        placeholder="גובה"
+                        value={formData.height}
+                        onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                        borderRadius="lg"
+                      />
+                      <Input
+                        placeholder="עובי"
+                        value={formData.thickness}
+                        onChange={(e) => setFormData({ ...formData, thickness: e.target.value })}
+                        borderRadius="lg"
+                      />
                     </Grid>
                   </FormControl>
 
@@ -485,92 +700,28 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                     <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                       משקל (ק״ג)
                     </FormLabel>
-                    <Input placeholder="משקל המוצר" borderRadius="lg" />
+                    <Input
+                      placeholder="משקל המוצר"
+                      value={formData.weight}
+                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                      borderRadius="lg"
+                    />
                   </FormControl>
                 </VStack>
               </TabPanel>
 
-              {/* טאב 5: תמונות */}
-              <TabPanel p={6}>
-                <VStack spacing={6} align="stretch">
-                  <Box
-                    border="2px dashed"
-                    borderColor={borderColor}
-                    borderRadius="lg"
-                    p={8}
-                    textAlign="center"
-                    cursor="pointer"
-                    _hover={{ bg: hoverBg }}
-                    transition="all 0.2s"
-                  >
-                    <VStack spacing={3}>
-                      <Upload size={48} color={secondaryText} />
-                      <Text fontSize="sm" fontWeight="600" color={textColor}>
-                        גרור קבצים לכאן או לחץ לבחירה
-                      </Text>
-                      <Text fontSize="xs" color={secondaryText}>
-                        PNG, JPG, GIF עד 10MB
-                      </Text>
-                      <Button
-                        size="sm"
-                        colorScheme="orange"
-                        variant="outline"
-                        borderRadius="lg"
-                      >
-                        בחר תמונות
-                      </Button>
-                    </VStack>
-                  </Box>
-
-                  <Box>
-                    <Text fontSize="sm" fontWeight="600" color={textColor} mb={3}>
-                      תמונות שהועלו
-                    </Text>
-                    <Grid templateColumns="repeat(4, 1fr)" gap={4}>
-                      {[1, 2, 3].map((img) => (
-                        <Box
-                          key={img}
-                          position="relative"
-                          borderRadius="lg"
-                          overflow="hidden"
-                          border="1px solid"
-                          borderColor={borderColor}
-                        >
-                          <Box
-                            h="150px"
-                            bg={hoverBg}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            <Text color={secondaryText} fontSize="xs">
-                              תמונה {img}
-                            </Text>
-                          </Box>
-                          <IconButton
-                            icon={<X size={16} />}
-                            size="sm"
-                            position="absolute"
-                            top={2}
-                            left={2}
-                            colorScheme="red"
-                            aria-label="מחק תמונה"
-                          />
-                        </Box>
-                      ))}
-                    </Grid>
-                  </Box>
-                </VStack>
-              </TabPanel>
-
-              {/* טאב 6: ספקים */}
+              {/* טאב 5: ספקים */}
               <TabPanel p={6}>
                 <VStack spacing={6} align="stretch">
                   <FormControl>
                     <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                       ספק ראשי
                     </FormLabel>
-                    <Select borderRadius="lg">
+                    <Select
+                      value={formData.supplier}
+                      onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                      borderRadius="lg"
+                    >
                       <option value="">בחר ספק</option>
                       <option value="delta">דלתא גלאס</option>
                       <option value="pilkington">פילקינגטון</option>
@@ -579,51 +730,13 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                     </Select>
                   </FormControl>
 
-                  <Box>
-                    <HStack justify="space-between" mb={3}>
-                      <Text fontSize="sm" fontWeight="600" color={textColor}>
-                        ספקים נוספים
-                      </Text>
-                      <Button
-                        size="sm"
-                        leftIcon={<Plus size={16} />}
-                        variant="outline"
-                        colorScheme="orange"
-                        borderRadius="lg"
-                      >
-                        הוסף ספק
-                      </Button>
-                    </HStack>
-                    <Stack spacing={3}>
-                      {["פילקינגטון", "סנט גובן"].map((supplier, idx) => (
-                        <HStack
-                          key={idx}
-                          p={3}
-                          bg={hoverBg}
-                          borderRadius="lg"
-                          justify="space-between"
-                        >
-                          <VStack align="start" spacing={0}>
-                            <Text fontSize="sm" fontWeight="600">{supplier}</Text>
-                            <Text fontSize="xs" color={secondaryText}>זמן אספקה: 3-5 ימים</Text>
-                          </VStack>
-                          <IconButton
-                            icon={<X size={16} />}
-                            size="sm"
-                            variant="ghost"
-                            aria-label="הסר"
-                            color="red.500"
-                          />
-                        </HStack>
-                      ))}
-                    </Stack>
-                  </Box>
-
                   <FormControl>
                     <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                       מק״ט אצל הספק
                     </FormLabel>
                     <Input
+                      value={formData.supplierSku}
+                      onChange={(e) => setFormData({ ...formData, supplierSku: e.target.value })}
                       placeholder="מק״ט המוצר אצל הספק"
                       borderRadius="lg"
                     />
@@ -634,7 +747,11 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                       <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                         כמות הזמנה מינימלית
                       </FormLabel>
-                      <NumberInput min={1} defaultValue={1}>
+                      <NumberInput
+                        value={formData.minOrderQuantity}
+                        onChange={(value) => setFormData({ ...formData, minOrderQuantity: parseInt(value) || 1 })}
+                        min={1}
+                      >
                         <NumberInputField borderRadius="lg" />
                         <NumberInputStepper>
                           <NumberIncrementStepper />
@@ -647,7 +764,11 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                       <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
                         זמן אספקה (ימים)
                       </FormLabel>
-                      <NumberInput min={1} defaultValue={3}>
+                      <NumberInput
+                        value={formData.deliveryTime}
+                        onChange={(value) => setFormData({ ...formData, deliveryTime: parseInt(value) || 1 })}
+                        min={1}
+                      >
                         <NumberInputField borderRadius="lg" />
                         <NumberInputStepper>
                           <NumberIncrementStepper />
@@ -659,7 +780,7 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                 </VStack>
               </TabPanel>
 
-              {/* טאב 7: הערות / קבצים */}
+              {/* טאב 6: הערות */}
               <TabPanel p={6}>
                 <VStack spacing={6} align="stretch">
                   <FormControl>
@@ -670,91 +791,49 @@ const ProductModal = ({ isOpen, onClose, product }) => {
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       placeholder="הערות פנימיות למוצר..."
-                      rows={6}
+                      rows={8}
                       borderRadius="lg"
                     />
                   </FormControl>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
-                      קבצים מצורפים
-                    </FormLabel>
-                    <Box
-                      border="2px dashed"
-                      borderColor={borderColor}
-                      borderRadius="lg"
-                      p={6}
-                      textAlign="center"
-                      cursor="pointer"
-                      _hover={{ bg: hoverBg }}
-                    >
-                      <VStack spacing={2}>
-                        <Upload size={32} color={secondaryText} />
-                        <Text fontSize="sm" color={textColor}>
-                          העלה קבצים (PDF, DOC, XLS)
-                        </Text>
-                        <Button size="sm" variant="outline" colorScheme="orange" borderRadius="lg">
-                          בחר קבצים
-                        </Button>
-                      </VStack>
-                    </Box>
-                  </FormControl>
-
-                  <Box>
-                    <Text fontSize="sm" fontWeight="600" color={textColor} mb={3}>
-                      קבצים שהועלו
-                    </Text>
-                    <Stack spacing={2}>
-                      {["מפרט טכני.pdf", "תעודת אישור.pdf"].map((file, idx) => (
-                        <HStack
-                          key={idx}
-                          p={3}
-                          bg={hoverBg}
-                          borderRadius="lg"
-                          justify="space-between"
-                        >
-                          <Text fontSize="sm">{file}</Text>
-                          <HStack>
-                            <Button size="xs" variant="ghost">הורד</Button>
-                            <IconButton
-                              icon={<X size={14} />}
-                              size="xs"
-                              variant="ghost"
-                              aria-label="מחק"
-                              color="red.500"
-                            />
-                          </HStack>
-                        </HStack>
-                      ))}
-                    </Stack>
-                  </Box>
                 </VStack>
               </TabPanel>
             </TabPanels>
           </Tabs>
         </ModalBody>
 
-        <ModalFooter borderTop="1px solid" borderColor={borderColor}>
-          <HStack spacing={3}>
+        <Box borderTop="1px solid" borderColor={borderColor} p={6}>
+          <HStack justify="flex-start" spacing={3}>
             <Button
-              colorScheme="orange"
               bg={primary}
+              color="white"
               px={8}
+              h="45px"
+              fontSize="md"
+              fontWeight="600"
               borderRadius="full"
+              _hover={{ bg: "primary.200" }}
               onClick={handleSave}
+              isLoading={isLoading}
+              loadingText={isEditMode ? "מעדכן..." : "שומר..."}
             >
-              שמור
+              {isEditMode ? "עדכן" : "שמור"}
             </Button>
             <Button
               variant="outline"
+              borderColor={borderColor}
               px={8}
+              h="45px"
+              fontSize="md"
+              fontWeight="600"
               borderRadius="full"
-              onClick={onClose}
+              _hover={{ bg: hoverBg }}
+              onClick={handleClose}
+              isDisabled={isLoading}
             >
               ביטול
             </Button>
           </HStack>
-        </ModalFooter>
+        </Box>
       </ModalContent>
     </Modal>
   );

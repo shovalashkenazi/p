@@ -1,181 +1,159 @@
-// src/features/products/productSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  getProductByCatalogNumber,
-  getData,
-  getOptions,
-  updateItemByFields,
-} from "./productApi";
+// src/features/staff-portal/products/services/productSlice.js
+import { createSlice } from "@reduxjs/toolkit";
 
 // ==========================
-// ✅ Async thunks
-// ==========================
-
-export const fetchProducts = createAsyncThunk(
-  "products/fetchProducts",
-  async (params, { rejectWithValue }) => {
-    try {
-      const res = await getData(params);
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const createProductThunk = createAsyncThunk(
-  "products/createProduct",
-  async (product, { rejectWithValue }) => {
-    try {
-      const res = await createProduct(product);
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const updateProductThunk = createAsyncThunk(
-  "products/updateProduct",
-  async (product, { rejectWithValue }) => {
-    try {
-      const res = await updateProduct(product);
-      return res.updatedProduct || res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const deleteProductThunk = createAsyncThunk(
-  "products/deleteProduct",
-  async (_id, { rejectWithValue }) => {
-    try {
-      await deleteProduct(_id);
-      return _id;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const getOptionsThunk = createAsyncThunk(
-  "products/getOptions",
-  async (category, { rejectWithValue }) => {
-    try {
-      const res = await getOptions(category);
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const setSelectedProductThunk = createAsyncThunk(
-  "products/setSelectedProduct",
-  async (catalogNumber, { rejectWithValue }) => {
-    try {
-      const res = await getProductByCatalogNumber(catalogNumber);
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-export const updateByFieldsThunk = createAsyncThunk(
-  "products/updateByFields",
-  async ({ productId, fields }, { rejectWithValue }) => {
-    try {
-      const res = await updateItemByFields(productId, fields);
-      return res;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-// ==========================
-// ✅ Slice
+// ✅ UI State Only (No API Data)
 // ==========================
 
 const initialState = {
-  products: [],
+  // Modal state
+  isModalOpen: false,
   selectedProduct: null,
-  total: 0,
-  totalPages: 0,
-  uniqMachinesAndSubModelAndSubRef: [],
-  loading: false,
-  error: null,
+
+  // Filters
+  searchQuery: "",
+  selectedCategory: null,
+  vehicleNumber: "", // מספר כלי
+  chassisNumber: "", // מספר שלדה
+  manufacturer: "", // יצרן
+  model: "", // דגם
+  year: "", // שנה
+  subModel: "", // תת דגם
+  isActiveFilter: null, // מוצר פעיל (null = הכל, true = פעיל, false = לא פעיל)
+
+  // Pagination
+  currentPage: 1,
+  pageSize: 10,
+
+  // Table UI
+  selectedColumns: ["image", "name", "catalogNumber", "category", "price", "stock", "actions"],
+
+  // Collapse states
+  collapses: {},
 };
 
 const productSlice = createSlice({
-  name: "products",
+  name: "productsUI",
   initialState,
   reducers: {
+    // ========== Modal Management ==========
+    openModal(state, action) {
+      state.isModalOpen = true;
+      state.selectedProduct = action.payload || null;
+    },
+    closeModal(state) {
+      state.isModalOpen = false;
+      state.selectedProduct = null;
+    },
+    setSelectedProduct(state, action) {
+      state.selectedProduct = action.payload;
+    },
     clearSelectedProduct(state) {
       state.selectedProduct = null;
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      // Fetch products
-      .addCase(fetchProducts.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.products = action.payload.products;
-        state.total = action.payload.total;
-        state.totalPages = action.payload.totalPages;
-      })
-      .addCase(fetchProducts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
 
-      // Create
-      .addCase(createProductThunk.fulfilled, (state, action) => {
-        state.products.unshift(action.payload);
-        state.total += 1;
-      })
+    // ========== Filters ==========
+    setSearchQuery(state, action) {
+      state.searchQuery = action.payload;
+      state.currentPage = 1; // Reset to first page on search
+    },
+    setSelectedCategory(state, action) {
+      state.selectedCategory = action.payload;
+      state.currentPage = 1; // Reset to first page on filter
+    },
+    setVehicleNumber(state, action) {
+      state.vehicleNumber = action.payload;
+      state.currentPage = 1;
+    },
+    setChassisNumber(state, action) {
+      state.chassisNumber = action.payload;
+      state.currentPage = 1;
+    },
+    setManufacturer(state, action) {
+      state.manufacturer = action.payload;
+      state.currentPage = 1;
+    },
+    setModel(state, action) {
+      state.model = action.payload;
+      state.currentPage = 1;
+    },
+    setYear(state, action) {
+      state.year = action.payload;
+      state.currentPage = 1;
+    },
+    setSubModel(state, action) {
+      state.subModel = action.payload;
+      state.currentPage = 1;
+    },
+    setIsActiveFilter(state, action) {
+      state.isActiveFilter = action.payload;
+      state.currentPage = 1;
+    },
+    clearFilters(state) {
+      state.searchQuery = "";
+      state.selectedCategory = null;
+      state.vehicleNumber = "";
+      state.chassisNumber = "";
+      state.manufacturer = "";
+      state.model = "";
+      state.year = "";
+      state.subModel = "";
+      state.isActiveFilter = null;
+      state.currentPage = 1;
+    },
 
-      // Update
-      .addCase(updateProductThunk.fulfilled, (state, action) => {
-        const index = state.products.findIndex(
-          (p) => p._id === action.payload._id
-        );
-        if (index !== -1) state.products[index] = action.payload;
-      })
+    // ========== Pagination ==========
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload;
+    },
+    setPageSize(state, action) {
+      state.pageSize = action.payload;
+      state.currentPage = 1; // Reset to first page
+    },
 
-      // Delete
-      .addCase(deleteProductThunk.fulfilled, (state, action) => {
-        state.products = state.products.filter((p) => p._id !== action.payload);
-        state.total -= 1;
-      })
+    // ========== Table Columns ==========
+    toggleColumn(state, action) {
+      const column = action.payload;
+      const index = state.selectedColumns.indexOf(column);
+      if (index > -1) {
+        state.selectedColumns.splice(index, 1);
+      } else {
+        state.selectedColumns.push(column);
+      }
+    },
 
-      // Get options
-      .addCase(getOptionsThunk.fulfilled, (state, action) => {
-        state.uniqMachinesAndSubModelAndSubRef = action.payload;
-      })
-
-      // Selected product
-      .addCase(setSelectedProductThunk.fulfilled, (state, action) => {
-        state.selectedProduct = action.payload;
-      })
-
-      // Update by fields
-      .addCase(updateByFieldsThunk.fulfilled, (state, action) => {
-        const index = state.products.findIndex(
-          (p) => p._id === action.payload._id
-        );
-        if (index !== -1) state.products[index] = action.payload;
-      });
+    // ========== Collapse States ==========
+    toggleCollapse(state, action) {
+      const id = action.payload;
+      state.collapses[id] = !state.collapses[id];
+    },
+    setCollapseState(state, action) {
+      const { id, isOpen } = action.payload;
+      state.collapses[id] = isOpen;
+    },
   },
 });
 
-export const { clearSelectedProduct } = productSlice.actions;
+export const {
+  openModal,
+  closeModal,
+  setSelectedProduct,
+  clearSelectedProduct,
+  setSearchQuery,
+  setSelectedCategory,
+  setVehicleNumber,
+  setChassisNumber,
+  setManufacturer,
+  setModel,
+  setYear,
+  setSubModel,
+  setIsActiveFilter,
+  clearFilters,
+  setCurrentPage,
+  setPageSize,
+  toggleColumn,
+  toggleCollapse,
+  setCollapseState,
+} = productSlice.actions;
+
 export default productSlice.reducer;

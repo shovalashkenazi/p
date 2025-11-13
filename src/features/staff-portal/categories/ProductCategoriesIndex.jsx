@@ -310,7 +310,7 @@ const ProductCategoriesIndex = () => {
                   <Td borderColor={borderColor} py={3}>
                     {category.image ? (
                       <Image
-                        src={category.image}
+                        src={category.imageUrl}
                         alt={category.label}
                         boxSize="40px"
                         borderRadius="md"

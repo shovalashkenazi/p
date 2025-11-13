@@ -739,7 +739,7 @@ const DashboardMain = () => {
 
               <Button
                 as="a"
-                href="https://teams.microsoft.com/"
+                // href="https://teams.microsoft.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 bg={cardBg}
@@ -768,7 +768,7 @@ const DashboardMain = () => {
                   </Box>
                   <VStack align="start" spacing={0} flex="1">
                     <Text fontSize="sm" fontWeight="700">
-                      Teams
+                      Zoom
                     </Text>
                     <Text fontSize="xs" color={secondaryText}>
                       התחבר לתמיכה מרחוק
