@@ -13,7 +13,26 @@ import {
   Heading,
   useColorModeValue,
   Avatar,
+  Wrap,
+  WrapItem,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
 } from "@chakra-ui/react";
+import {
+  FileText,
+  DollarSign,
+  Wrench,
+  Receipt,
+  Users,
+  Shield,
+  BarChart3,
+  Warehouse,
+  Package,
+} from "lucide-react";
 
 const DashboardMain = () => {
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -22,64 +41,221 @@ const DashboardMain = () => {
   const textColor = useColorModeValue("gray.700", "gray.200");
   const secondaryText = useColorModeValue("gray.600", "gray.400");
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const hoverBg = useColorModeValue("gray.50", "gray.700");
+
+  // תאריך של היום בעברית
+  const getTodayDate = () => {
+    const date = new Date();
+    const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+    const months = [
+      "ינואר",
+      "פברואר",
+      "מרץ",
+      "אפריל",
+      "מאי",
+      "יוני",
+      "יולי",
+      "אוגוסט",
+      "ספטמבר",
+      "אוקטובר",
+      "נובמבר",
+      "דצמבר",
+    ];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${dayName}, ${day} ${month} ${year}`;
+  };
+
+  // כפתורי ניווט מהיר
+  const quickNavButtons = [
+    { label: "תעודות משלוח", icon: FileText, shortcut: "F1" },
+    { label: "הצעות מחיר", icon: DollarSign, shortcut: "F2" },
+    { label: "כרטיסי עבודה", icon: Wrench, shortcut: "F3" },
+    { label: "חשבוניות", icon: Receipt, shortcut: "F4" },
+    { label: "ניהול לקוחות", icon: Users, shortcut: "F5" },
+    { label: "ניהול מנויים", icon: Shield, shortcut: "F6" },
+    { label: 'דו"חות', icon: BarChart3, shortcut: "F7" },
+    { label: "מחסנים ומלאי", icon: Warehouse, shortcut: "F8" },
+    { label: "מעקב הזמנות", icon: Package, shortcut: "F9" },
+  ];
+
+  // נתוני דמה למסמכים אחרונים
+  const recentDocuments = [
+    {
+      id: "DOC-001",
+      date: "13/11/2024",
+      type: "תעודת משלוח",
+      customer: "חברת ABC",
+      category: "זכוכית",
+      status: "הושלם",
+    },
+    {
+      id: "DOC-002",
+      date: "12/11/2024",
+      type: "הצעת מחיר",
+      customer: "גרייס שיווק",
+      category: "חלונות",
+      status: "בתהליך",
+    },
+    {
+      id: "DOC-003",
+      date: "12/11/2024",
+      type: "כרטיס עבודה",
+      customer: "מפעלי ברזל",
+      category: "תיקונים",
+      status: "ממתין",
+    },
+    {
+      id: "DOC-004",
+      date: "11/11/2024",
+      type: "חשבונית",
+      customer: "טרקטור שירותים",
+      category: "שירות",
+      status: "הושלם",
+    },
+    {
+      id: "DOC-005",
+      date: "11/11/2024",
+      type: "תעודת משלוח",
+      customer: "חברת XYZ",
+      category: "זכוכית",
+      status: "הושלם",
+    },
+    {
+      id: "DOC-006",
+      date: "10/11/2024",
+      type: "הצעת מחיר",
+      customer: "בניין ופיתוח",
+      category: "חלונות",
+      status: "בתהליך",
+    },
+    {
+      id: "DOC-007",
+      date: "10/11/2024",
+      type: "כרטיס עבודה",
+      customer: "מוסך דוד",
+      category: "תיקונים",
+      status: "הושלם",
+    },
+    {
+      id: "DOC-008",
+      date: "09/11/2024",
+      type: "חשבונית",
+      customer: "שילה תעשיות",
+      category: "שירות",
+      status: "ממתין",
+    },
+    {
+      id: "DOC-009",
+      date: "09/11/2024",
+      type: "תעודת משלוח",
+      customer: "מכון טכנולוגי",
+      category: "זכוכית",
+      status: "הושלם",
+    },
+    {
+      id: "DOC-010",
+      date: "08/11/2024",
+      type: "הצעת מחיר",
+      customer: "רכב ותחבורה",
+      category: "חלונות",
+      status: "בתהליך",
+    },
+  ];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "הושלם":
+        return "green";
+      case "בתהליך":
+        return "orange";
+      case "ממתין":
+        return "blue";
+      default:
+        return "gray";
+    }
+  };
 
   return (
-    <Box
-      p={8}
-      dir="rtl"
-    >
+    <Box p={8} dir="rtl">
       {/* כותרת העמוד */}
-      <Flex justify="space-between" align="center" mb={8}>
-        <Box>
-          <Heading size="xl" mb={2} color={textColor} fontWeight="bold">
-            זכוכית מרכז זגגות טרקטורים בע"מ
-          </Heading>
+      <Box mb={4}>
+        <Heading size="xl" mb={2} color={textColor} fontWeight="bold">
+          זכוכית מרכז זגגות טרקטורים בע"מ
+        </Heading>
+        <Flex align="center" gap={3} mb={6}>
           <Text fontSize="md" color={secondaryText}>
             תכנן, סדר עדיפויות ובצע את המשימות שלך בקלות.
           </Text>
-        </Box>
-        <HStack spacing={3}>
-          <Button
-            bg={primary}
-            color="white"
-            borderRadius="full"
-            px={6}
-            py={3}
-            fontSize="md"
-            fontWeight="600"
-            _hover={{ bg: "primary.200", transform: "translateY(-2px)" }}
-            _active={{ transform: "translateY(0)" }}
-            transition="all 0.2s"
-            boxShadow="md"
-          >
-            + הוסף פרויקט
-          </Button>
-          <Button
-            variant="outline"
-            borderRadius="full"
-            px={6}
-            py={3}
-            fontSize="md"
-            fontWeight="600"
-            color={primary}
-            borderColor={primary}
-            borderWidth="2px"
-            _hover={{ bg: primary, color: "white", transform: "translateY(-2px)" }}
-            _active={{ transform: "translateY(0)" }}
-            transition="all 0.2s"
-          >
-            ייבוא נתונים
-          </Button>
-        </HStack>
-      </Flex>
+          <Box w="1px" h="16px" bg={borderColor} />
+          <HStack spacing={2}>
+            <Box w="8px" h="8px" borderRadius="full" bg={primary} />
+            <Text fontSize="sm" color={secondaryText} fontWeight="600">
+              {getTodayDate()}
+            </Text>
+          </HStack>
+        </Flex>
+
+        {/* שורת ניווט מהיר */}
+        <Flex gap={4} p={2} max dir="rtl">
+          {quickNavButtons.map((btn, index) => {
+            const Icon = btn.icon;
+            return (
+              <Button
+                key={index}
+                leftIcon={<Icon size={16} />}
+                bg={cardBg}
+                color={textColor}
+                borderRadius="xl"
+                px={4}
+                h="48px"
+                fontSize="sm"
+                fontWeight="600"
+                border="1px solid"
+                borderColor={borderColor}
+                _hover={{
+                  bg: primary,
+                  color: "white",
+                  transform: "translateY(-2px)",
+                  boxShadow: "lg",
+                  borderColor: primary,
+                }}
+                _active={{ transform: "translateY(0)" }}
+                transition="all 0.2s"
+                boxShadow="sm"
+                position="relative"
+                flexShrink={0}
+                whiteSpace="nowrap"
+              >
+                {btn.label}
+                <Badge
+                  position="absolute"
+                  top="-8px"
+                  left="-8px"
+                  colorScheme="orange"
+                  fontSize="9px"
+                  fontWeight="700"
+                  borderRadius="md"
+                  px={1.5}
+                  py={0.5}
+                >
+                  {btn.shortcut}
+                </Badge>
+              </Button>
+            );
+          })}
+        </Flex>
+      </Box>
 
       {/* כרטיסי סטטיסטיקה */}
       <Grid templateColumns="repeat(4, 1fr)" gap={6} mb={8}>
         {[
-          { title: "סה״כ פרויקטים", value: 24 },
-          { title: "פרויקטים שהסתיימו", value: 10 },
-          { title: "פרויקטים פעילים", value: 12 },
-          { title: "פרויקטים בהמתנה", value: 2 },
+          { title: "תקבולים", value: 5000 },
+          { title: "הכנסות", value: 8000 },
+          { title: "הוצאות", value: 1200 },
+          { title: "תשלומים", value: 3000 },
         ].map((stat, i) => (
           <GridItem key={i}>
             <Box
@@ -98,7 +274,11 @@ const DashboardMain = () => {
               }}
             >
               <Flex justify="space-between" align="start" mb={4}>
-                <Text fontSize="sm" fontWeight="600" opacity={i === 0 ? 0.9 : 0.7}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="600"
+                  opacity={i === 0 ? 0.9 : 0.7}
+                >
                   {stat.title}
                 </Text>
                 <IconButton
@@ -114,7 +294,7 @@ const DashboardMain = () => {
                 />
               </Flex>
               <Text fontSize="4xl" fontWeight="bold" mb={3}>
-                {stat.value}
+                {stat.value} ₪
               </Text>
               <HStack spacing={2} fontSize="sm" opacity={i === 0 ? 0.9 : 0.7}>
                 <Text>📈</Text>
@@ -126,11 +306,7 @@ const DashboardMain = () => {
       </Grid>
 
       {/* החלק התחתון */}
-      <Grid
-        templateColumns="repeat(3, 1fr)"
-        gap={6}
-        alignItems="stretch"
-      >
+      <Grid templateColumns="repeat(3, 1fr)" gap={6} alignItems="stretch">
         {/* ניתוח פרויקטים */}
         <GridItem colSpan={1} h="100%">
           <Box
@@ -145,7 +321,7 @@ const DashboardMain = () => {
             _hover={{ boxShadow: "lg" }}
           >
             <Text fontSize="lg" fontWeight="700" color={textColor} mb={6}>
-              ניתוח פרויקטים
+              10 מסמכים אחרונים
             </Text>
             <Flex justify="space-around" align="end" h="140px">
               {["א", "ב", "ג", "ד", "ה", "ו", "ש"].map((day, index) => {
@@ -405,20 +581,21 @@ const DashboardMain = () => {
             <HStack justify="center" spacing={6} fontSize="sm">
               <HStack spacing={2}>
                 <Box w="3" h="3" borderRadius="full" bg={primary} />
-                <Text color={secondaryText} fontWeight="500">הושלם</Text>
+                <Text color={secondaryText} fontWeight="500">
+                  הושלם
+                </Text>
               </HStack>
               <HStack spacing={2}>
                 <Box w="3" h="3" borderRadius="full" bg={secondaryText} />
-                <Text color={secondaryText} fontWeight="500">בתהליך</Text>
+                <Text color={secondaryText} fontWeight="500">
+                  בתהליך
+                </Text>
               </HStack>
               <HStack spacing={2}>
-                <Box
-                  w="3"
-                  h="3"
-                  borderRadius="full"
-                  bg="gray.300"
-                />
-                <Text color={secondaryText} fontWeight="500">בהמתנה</Text>
+                <Box w="3" h="3" borderRadius="full" bg="gray.300" />
+                <Text color={secondaryText} fontWeight="500">
+                  בהמתנה
+                </Text>
               </HStack>
             </HStack>
           </Box>

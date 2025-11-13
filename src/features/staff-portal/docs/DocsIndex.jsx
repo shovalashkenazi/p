@@ -814,7 +814,13 @@ const DocsIndex = () => {
                 </Td>
                 <Td borderColor={borderColor} py={3}>
                   <Tooltip label={doc.docNumber} hasArrow>
-                    <Text fontSize="sm" fontWeight="600" color={textColor} isTruncated maxW="150px">
+                    <Text
+                      fontSize="sm"
+                      fontWeight="600"
+                      color={textColor}
+                      isTruncated
+                      maxW="150px"
+                    >
                       {doc.docNumber}
                     </Text>
                   </Tooltip>
@@ -831,7 +837,12 @@ const DocsIndex = () => {
                 </Td>
                 <Td borderColor={borderColor} py={3} maxW="200px">
                   <Tooltip label={doc.clientName} hasArrow>
-                    <Text fontSize="sm" color={textColor} fontWeight="500" isTruncated>
+                    <Text
+                      fontSize="sm"
+                      color={textColor}
+                      fontWeight="500"
+                      isTruncated
+                    >
                       {doc.clientName}
                     </Text>
                   </Tooltip>
@@ -956,7 +967,8 @@ const DocsIndex = () => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-{filteredDocuments.length} מתוך {filteredDocuments.length} מסמכים
+          מציג 1-{filteredDocuments.length} מתוך {filteredDocuments.length}{" "}
+          מסמכים
         </Text>
         <HStack spacing={2}>
           <Button
@@ -984,11 +996,7 @@ const DocsIndex = () => {
       </Flex>
 
       {/* Doc Modal */}
-      <DocModal
-        isOpen={isOpen}
-        onClose={onClose}
-        doc={selectedDoc}
-      />
+      <DocModal isOpen={isOpen} onClose={onClose} doc={selectedDoc} />
     </Box>
   );
 };

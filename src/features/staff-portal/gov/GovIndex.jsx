@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -24,6 +24,7 @@ import {
   useColorModeValue,
   Divider,
   Tooltip,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   Search,
@@ -40,6 +41,7 @@ import {
   Tag,
   ChevronDown,
 } from "lucide-react";
+import GovModal from "./GovModal";
 
 const GovIndex = () => {
   const bgColor = useColorModeValue("white", "gray.800");
@@ -52,6 +54,8 @@ const GovIndex = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   // נתוני דוגמה - 12 כלים
   const tools = [
@@ -216,6 +220,21 @@ const GovIndex = () => {
     console.log("רענון נתונים...");
   };
 
+  const handleAddVehicle = () => {
+    setSelectedVehicle(null);
+    onOpen();
+  };
+
+  const handleEditVehicle = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    onOpen();
+  };
+
+  const handleViewVehicle = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    onOpen();
+  };
+
   return (
     <Box p={8} dir="rtl">
       {/* Header */}
@@ -260,7 +279,7 @@ const GovIndex = () => {
                   fontSize="sm"
                   onClick={() => {
                     setSelectedCategory(category);
-                    console.log("נבחרה קטגוריה:", category);
+                    handleAddVehicle();
                   }}
                 >
                   {category}
@@ -636,6 +655,7 @@ const GovIndex = () => {
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
+                        onClick={() => handleViewVehicle(tool)}
                       >
                         צפייה
                       </ChakraMenuItem>
@@ -643,6 +663,7 @@ const GovIndex = () => {
                         icon={<Edit size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
+                        onClick={() => handleEditVehicle(tool)}
                       >
                         עריכה
                       </ChakraMenuItem>
@@ -692,6 +713,9 @@ const GovIndex = () => {
           </Button>
         </HStack>
       </Flex>
+
+      {/* Gov Modal */}
+      <GovModal isOpen={isOpen} onClose={onClose} vehicle={selectedVehicle} />
     </Box>
   );
 };
