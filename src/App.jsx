@@ -11,6 +11,7 @@ import SubscriptionsIndex from "./features/staff-portal/subscriptions/Subscripti
 import ReportsIndex from "./features/staff-portal/reports/ReportsIndex";
 import WarehouseIndex from "./features/staff-portal/warehouse/WarehouseIndex";
 import OrdersIndex from "./features/staff-portal/orders/OrdersIndex";
+import DriversRoutesIndex from "./features/staff-portal/drivers-routes/DriversRoutesIndex";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="reports" element={<ReportsIndex />} />
         <Route path="warehouse" element={<WarehouseIndex />} />
         <Route path="orders" element={<OrdersIndex />} />
+        <Route path="drivers-routes" element={<DriversRoutesIndex />} />
       </Route>
     </Routes>
   );

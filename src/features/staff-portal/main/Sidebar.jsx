@@ -1,5 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, VStack, HStack, Text, Flex, Divider, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Flex,
+  Divider,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Package,
@@ -17,6 +25,7 @@ import {
   Circle,
   Home,
   Database,
+  Route,
 } from "lucide-react";
 
 import { Image } from "@chakra-ui/react";
@@ -58,11 +67,7 @@ const Sidebar = () => {
       label: "קטלוג",
       path: "/dashboard/worker/catalog",
     },
-    {
-      icon: Wrench,
-      label: "כלים",
-      path: "/dashboard/worker/tools",
-    },
+
     {
       icon: Users,
       label: "לקוחות",
@@ -73,68 +78,62 @@ const Sidebar = () => {
       label: "מנויים",
       path: "/dashboard/worker/subscriptions",
     },
-    {
-      icon: FileText,
-      label: "דוחות",
-      path: "/dashboard/worker/reports",
-    },
+
     {
       icon: Warehouse,
       label: "מחסנים ומלאי",
       path: "/dashboard/worker/warehouse",
     },
     {
-      icon: Truck,
-      label: "מעקב הזמנות",
-      path: "/dashboard/worker/orders",
+      icon: Route,
+      label: "מסלולי נהגים",
+      path: "/dashboard/worker/drivers-routes",
     },
   ];
 
-  const MenuItem = React.memo(
-    ({ icon: Icon, label, path }) => {
-      const isActive = location.pathname === path;
+  const MenuItem = React.memo(({ icon: Icon, label, path }) => {
+    const isActive = location.pathname === path;
 
-      return (
-        <NavLink to={path} style={{ textDecoration: "none", width: "100%" }}>
-          <Flex
-            w="full"
-            align="center"
-            cursor="pointer"
-            borderRadius="xl"
-            color={isActive ? textColor : secondaryTextColor}
-            bg={isActive ? activeBg : "transparent"}
-            _hover={{
-              bg: isActive ? activeBg : hoverBg,
-              transform: "translateX(-2px)",
-            }}
+    return (
+      <NavLink to={path} style={{ textDecoration: "none", width: "100%" }}>
+        <Flex
+          w="full"
+          align="center"
+          cursor="pointer"
+          borderRadius="xl"
+          color={isActive ? textColor : secondaryTextColor}
+          bg={isActive ? activeBg : "transparent"}
+          _hover={{
+            bg: isActive ? activeBg : hoverBg,
+            transform: "translateX(-2px)",
+          }}
+          transition="all 0.2s ease-in-out"
+          border="1px solid"
+          borderColor={isActive ? borderColor : "transparent"}
+          boxShadow={isActive ? "sm" : "none"}
+        >
+          {/* Active Indicator */}
+          <Box
+            w="4px"
+            h="45px"
+            bg={isActive ? primaryColor : "transparent"}
+            borderRadius="0 4px 4px 0"
             transition="all 0.2s ease-in-out"
-            border="1px solid"
-            borderColor={isActive ? borderColor : "transparent"}
-            boxShadow={isActive ? "sm" : "none"}
-          >
-            {/* Active Indicator */}
-            <Box
-              w="4px"
-              h="45px"
-              bg={isActive ? primaryColor : "transparent"}
-              borderRadius="0 4px 4px 0"
-              transition="all 0.2s ease-in-out"
-            />
+          />
 
-            {/* Menu Content */}
-            <HStack flex="1" px={4} py={3} justifyContent="space-between">
-              <HStack spacing={3}>
-                <Icon size={18} />
-                <Text fontSize="sm" fontWeight={isActive ? "600" : "500"}>
-                  {label}
-                </Text>
-              </HStack>
+          {/* Menu Content */}
+          <HStack flex="1" px={4} py={3} justifyContent="space-between">
+            <HStack spacing={3}>
+              <Icon size={18} />
+              <Text fontSize="sm" fontWeight={isActive ? "600" : "500"}>
+                {label}
+              </Text>
             </HStack>
-          </Flex>
-        </NavLink>
-      );
-    }
-  );
+          </HStack>
+        </Flex>
+      </NavLink>
+    );
+  });
 
   return (
     <Box
