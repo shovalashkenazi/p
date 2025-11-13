@@ -275,8 +275,6 @@ const ServiceCallsIndex = () => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
-            _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={handleRefresh}
           >
@@ -486,12 +484,22 @@ const ServiceCallsIndex = () => {
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                  <Text
+                    fontSize="sm"
+                    color={secondaryText}
+                    dir="ltr"
+                    textAlign="right"
+                  >
                     {call.idNumber}
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                  <Text
+                    fontSize="sm"
+                    color={secondaryText}
+                    dir="ltr"
+                    textAlign="right"
+                  >
                     {call.phone}
                   </Text>
                 </Td>
@@ -517,7 +525,11 @@ const ServiceCallsIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+                    <MenuList
+                      dir="rtl"
+                      borderColor={borderColor}
+                      boxShadow="lg"
+                    >
                       <ChakraMenuItem
                         icon={<CheckCircle size={16} />}
                         _hover={{ bg: hoverBg }}

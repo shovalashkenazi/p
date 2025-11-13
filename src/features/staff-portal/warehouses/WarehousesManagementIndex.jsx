@@ -149,7 +149,7 @@ const WarehousesManagementIndex = () => {
       id: 11,
       warehouseNumber: "WH-011",
       name: "מחסן מודיעין",
-      address: "שדרות שז\"ר 15, מודיעין",
+      address: 'שדרות שז"ר 15, מודיעין',
       type: "מקומי",
       manager: "ליאת כהן",
       totalProducts: 510,
@@ -268,8 +268,6 @@ const WarehousesManagementIndex = () => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
-            _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={handleRefresh}
           >
@@ -493,7 +491,11 @@ const WarehousesManagementIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+                    <MenuList
+                      dir="rtl"
+                      borderColor={borderColor}
+                      boxShadow="lg"
+                    >
                       <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}

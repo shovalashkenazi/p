@@ -445,8 +445,6 @@ const ProductIndex = () => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
-            _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={handleRefresh}
           >
@@ -698,7 +696,13 @@ const ProductIndex = () => {
                 {/* compact rows with py={3} */}
                 <Td borderColor={borderColor} py={3}>
                   <Tooltip label={product.sku} hasArrow>
-                    <Text fontSize="sm" fontWeight="600" color={textColor} isTruncated maxW="120px">
+                    <Text
+                      fontSize="sm"
+                      fontWeight="600"
+                      color={textColor}
+                      isTruncated
+                      maxW="120px"
+                    >
                       {product.sku}
                     </Text>
                   </Tooltip>
@@ -724,7 +728,12 @@ const ProductIndex = () => {
                 </Td>
                 <Td borderColor={borderColor} py={3} maxW="250px">
                   <Tooltip label={product.name} hasArrow>
-                    <Text fontSize="sm" color={textColor} fontWeight="500" isTruncated>
+                    <Text
+                      fontSize="sm"
+                      color={textColor}
+                      fontWeight="500"
+                      isTruncated
+                    >
                       {product.name}
                     </Text>
                   </Tooltip>
@@ -809,11 +818,7 @@ const ProductIndex = () => {
                 {/* new column: notes with tooltip */}
                 <Td borderColor={borderColor} py={3} maxW="180px">
                   <Tooltip label={product.notes} hasArrow>
-                    <Text
-                      fontSize="xs"
-                      color={secondaryText}
-                      isTruncated
-                    >
+                    <Text fontSize="xs" color={secondaryText} isTruncated>
                       {product.notes}
                     </Text>
                   </Tooltip>
@@ -853,7 +858,9 @@ const ProductIndex = () => {
                         icon={<Printer size={16} />}
                         _hover={{ bg: hoverBg }}
                         fontSize="sm"
-                        onClick={() => console.log(`הדפסת ברקוד למוצר ${product.sku}`)}
+                        onClick={() =>
+                          console.log(`הדפסת ברקוד למוצר ${product.sku}`)
+                        }
                       >
                         הדפסת ברקוד
                       </ChakraMenuItem>

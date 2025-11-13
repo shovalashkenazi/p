@@ -228,7 +228,6 @@ const ServiceContractsIndex = () => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
             _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={handleRefresh}
@@ -449,7 +448,11 @@ const ServiceContractsIndex = () => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+                    <MenuList
+                      dir="rtl"
+                      borderColor={borderColor}
+                      boxShadow="lg"
+                    >
                       <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}

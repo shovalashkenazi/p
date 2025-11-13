@@ -116,36 +116,7 @@ const ProductCategoriesIndex = () => {
           >
             יצירת קטגוריה חדשה
           </Button>
-          <Button
-            leftIcon={<Filter size={18} />}
-            variant="outline"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="sm"
-            fontWeight="600"
-            color={textColor}
-            borderColor={borderColor}
-            borderWidth="1px"
-            _hover={{ bg: hoverBg }}
-          >
-            מסננים
-          </Button>
-          <Button
-            leftIcon={<Columns size={18} />}
-            variant="outline"
-            borderRadius="full"
-            px={6}
-            h="45px"
-            fontSize="sm"
-            fontWeight="600"
-            color={textColor}
-            borderColor={borderColor}
-            borderWidth="1px"
-            _hover={{ bg: hoverBg }}
-          >
-            עמודות
-          </Button>
+
           <Button
             leftIcon={<RefreshCw size={18} />}
             variant="outline"
@@ -157,8 +128,6 @@ const ProductCategoriesIndex = () => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
-            _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={refetch}
             isLoading={isFetching}

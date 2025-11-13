@@ -59,7 +59,14 @@ const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   // קטגוריות לפי סוג החשבון
-  const categories = ["לקוחות", "עובדים", "סוכנים", "מתקינים", "מחסנאים", "ספקים"];
+  const categories = [
+    "לקוחות",
+    "עובדים",
+    "סוכנים",
+    "מתקינים",
+    "מחסנאים",
+    "ספקים",
+  ];
 
   // נתוני דוגמה - 10 חשבונות
   const accounts = [
@@ -355,8 +362,6 @@ const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
             color={textColor}
             borderColor={borderColor}
             borderWidth="1px"
-            _hover={{ bg: hoverBg, transform: "rotate(180deg)" }}
-            _active={{ transform: "rotate(360deg)" }}
             transition="all 0.5s ease"
             onClick={handleRefresh}
           >
@@ -579,12 +584,22 @@ const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
                   {getTypeBadge(account.type)}
                 </Td>
                 <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                  <Text
+                    fontSize="sm"
+                    color={secondaryText}
+                    dir="ltr"
+                    textAlign="right"
+                  >
                     {account.businessId}
                   </Text>
                 </Td>
                 <Td borderColor={borderColor} py={3}>
-                  <Text fontSize="sm" color={secondaryText} dir="ltr" textAlign="right">
+                  <Text
+                    fontSize="sm"
+                    color={secondaryText}
+                    dir="ltr"
+                    textAlign="right"
+                  >
                     {account.phone}
                   </Text>
                 </Td>
@@ -615,7 +630,11 @@ const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
                       borderRadius="full"
                       _hover={{ bg: hoverBg }}
                     />
-                    <MenuList dir="rtl" borderColor={borderColor} boxShadow="lg">
+                    <MenuList
+                      dir="rtl"
+                      borderColor={borderColor}
+                      boxShadow="lg"
+                    >
                       <ChakraMenuItem
                         icon={<Eye size={16} />}
                         _hover={{ bg: hoverBg }}
@@ -651,7 +670,8 @@ const GenericAccountsIndex = ({ accountType, title, subtitle }) => {
       {/* Footer Info */}
       <Flex justify="space-between" align="center" mt={6} px={2}>
         <Text fontSize="sm" color={secondaryText}>
-          מציג 1-{filteredAccounts.length} מתוך {filteredAccounts.length} חשבונות
+          מציג 1-{filteredAccounts.length} מתוך {filteredAccounts.length}{" "}
+          חשבונות
         </Text>
         <HStack spacing={2}>
           <Button
