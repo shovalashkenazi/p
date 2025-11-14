@@ -48,11 +48,6 @@ export const productsApi = createApi({
           params.visibility = filters.visibility;
         }
 
-        // 🔍 DEBUG: Log what we're sending to server
-        console.log("📤 [FRONTEND] Filters received from hook:", filters);
-        console.log("📤 [FRONTEND] Params being sent to server:", params);
-        console.log("📤 [FRONTEND] Full URL will be: /product/getData?" + new URLSearchParams(params).toString());
-
         return {
           url: "/product/getData",
           params,
@@ -61,22 +56,18 @@ export const productsApi = createApi({
       providesTags: (result) =>
         result?.products
           ? [
-              ...result.products.map(({ _id }) => ({ type: "Products", id: _id })),
+              ...result.products.map(({ _id }) => ({
+                type: "Products",
+                id: _id,
+              })),
               { type: "Products", id: "LIST" },
             ]
           : [{ type: "Products", id: "LIST" }],
-      transformResponse: (response) => {
-        // 🔍 DEBUG: Log what we received from server
-        console.log("📥 [FRONTEND] Response received from server:", response);
-        console.log("📥 [FRONTEND] Products count:", response?.products?.length || 0);
-        console.log("📥 [FRONTEND] Total:", response?.total || 0);
-
-        return {
-          products: response.products || [],
-          total: response.total || 0,
-          totalPages: response.totalPages || 0,
-        };
-      },
+      transformResponse: (response) => ({
+        products: response.products || [],
+        total: response.total || 0,
+        totalPages: response.totalPages || 0,
+      }),
     }),
 
     // ========== POST: Create new product ==========
@@ -124,6 +115,21 @@ export const productsApi = createApi({
         { type: "Products", id: "LIST" },
       ],
     }),
+
+    // ========== GET: Get dynamic options (machine/model/year) ==========
+    getOptions: builder.query({
+      query: (category) => ({
+        url: "/product/getOptions",
+        params: { category },
+      }),
+      transformResponse: (response) => {
+        // Transform server response to usable format
+        // Server returns: [{ machine, models: [{ model, variants, years }] }]
+        return response || [];
+      },
+      // Cache for 5 minutes (options don't change frequently)
+      keepUnusedDataFor: 300,
+    }),
   }),
 });
 
@@ -134,4 +140,5 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useUpdateProductByFieldsMutation,
+  useGetOptionsQuery,
 } = productsApi;

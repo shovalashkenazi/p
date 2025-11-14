@@ -85,10 +85,10 @@ const ProductTable = memo(
                 </Text>
               </Th>
             )}
-            {isColumnVisible("isActive") && (
+            {isColumnVisible("visibility") && (
               <Th>
                 <Text fontSize="xs" fontWeight="700" color={textColor}>
-                  סטטוס
+                  נראות
                 </Text>
               </Th>
             )}

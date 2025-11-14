@@ -23,11 +23,13 @@ import {
   Spinner,
   Center,
   useColorModeValue,
+  Divider,
 } from "@chakra-ui/react";
 
 // Components
 import ProductFiltersBar from "./components/ProductFiltersBar";
 import ProductTable from "./components/ProductTable";
+import ActiveFilters from "./components/ActiveFilters";
 
 // Hooks
 import {
@@ -39,9 +41,10 @@ import {
 
 // External Services
 import { useGetCategoriesQuery } from "../categories/services/categoriesApiSlice";
+import { DivideCircle, Download, Upload } from "lucide-react";
 
 // ✅ Lazy load modal for better performance
-const ProductModal = lazy(() => import("./ProductModal"));
+const ProductModalV2 = lazy(() => import("./ProductModalV2"));
 
 /**
  * ✅ OPTIMIZED ProductIndex Component
@@ -70,8 +73,13 @@ const ProductIndex = () => {
 
   const { deleteProduct } = useProductActions();
 
-  const { isOpen, openCreateModal, openEditModal, closeModal } =
-    useProductModal();
+  const {
+    isOpen,
+    modalInitialCategory,
+    openCreateModal,
+    openEditModal,
+    closeModal,
+  } = useProductModal();
 
   const {
     searchQuery,
@@ -127,11 +135,12 @@ const ProductIndex = () => {
   );
 
   const handleRefresh = useCallback(() => {
-    // Mark refetch as low-priority to not block UI
+    // ✅ Complete reset: clear all filters and reset pagination
     startTransition(() => {
-      refetch();
+      clearFilters(); // This already resets page to 1 and clears all filters
+      refetch(); // Fetch data with clean state
     });
-  }, [refetch]);
+  }, [clearFilters, refetch]);
 
   // ✅ Memoized pagination click handler
   const handlePageClick = useCallback(
@@ -204,6 +213,56 @@ const ProductIndex = () => {
         onRefresh={handleRefresh}
         onOpenCreateModal={openCreateModal}
         isFetching={isFetching}
+      />
+
+      <Divider my={6} borderColor={borderColor} />
+
+      {/* Action Bar - Row 2 */}
+      <Flex justify="space-between" align="center" mb={6}>
+        <HStack spacing={3}>
+          <Button
+            leftIcon={<Download size={18} />}
+            variant="ghost"
+            size="sm"
+            // color={secondaryText}
+            // _hover={{ bg: hoverBg,   color: primary }}
+          >
+            ייצוא
+          </Button>
+          <Button
+            leftIcon={<Upload size={18} />}
+            variant="ghost"
+            size="sm"
+            // color={secondaryText}
+            // _hover={{ bg: hoverBg, color: primary }}
+          >
+            ייבוא
+          </Button>
+        </HStack>
+      </Flex>
+
+      {/* ✅ Active Filters Display */}
+      <ActiveFilters
+        searchQuery={searchQuery}
+        category={category}
+        vinNumber={vinNumber}
+        tractorNumber={tractorNumber}
+        machine={machine}
+        model={model}
+        variant={variant}
+        year={year}
+        visibility={visibility}
+        categories={categories}
+        onSearchChange={setSearchQuery}
+        onCategoryChange={setCategory}
+        onVinNumberChange={setVinNumber}
+        onTractorNumberChange={setTractorNumber}
+        onMachineChange={setMachine}
+        onModelChange={setModel}
+        onVariantChange={setVariant}
+        onYearChange={setYear}
+        onVisibilityChange={setVisibility}
+        onClearFilters={clearFilters}
       />
 
       {/* Error Alert */}
@@ -310,7 +369,11 @@ const ProductIndex = () => {
           </Center>
         }
       >
-        <ProductModal isOpen={isOpen} onClose={closeModal} />
+        <ProductModalV2
+          isOpen={isOpen}
+          onClose={closeModal}
+          initialCategory={modalInitialCategory}
+        />
       </Suspense>
     </Box>
   );

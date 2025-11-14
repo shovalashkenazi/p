@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import {
   Tr,
   Td,
@@ -12,8 +12,11 @@ import {
   IconButton,
   Divider,
   useColorModeValue,
+  Switch,
+  Flex,
 } from "@chakra-ui/react";
 import { MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
+import { useUpdateProductByFieldsMutation } from "../services/productsApiSlice";
 
 /**
  * ✅ Memoized Product Table Row
@@ -30,6 +33,13 @@ const ProductTableRow = memo(({
   const primary = useColorModeValue("primary.100", "primary.300");
   const hoverBg = useColorModeValue("gray.50", "gray.700");
 
+  // ✅ RTK Query mutation for updating visibility
+  const [updateProductByFields, { isLoading: isUpdating }] =
+    useUpdateProductByFieldsMutation();
+
+  // ✅ Optimistic UI state for visibility
+  const [localVisibility, setLocalVisibility] = useState(product.visibility);
+
   // Memoized handlers
   const handleEdit = useCallback(() => {
     onEdit(product);
@@ -38,6 +48,25 @@ const ProductTableRow = memo(({
   const handleDelete = useCallback(() => {
     onDelete(product._id);
   }, [onDelete, product._id]);
+
+  // ✅ Handle visibility toggle with optimistic update
+  const handleVisibilityToggle = useCallback(async () => {
+    const newVisibility = !localVisibility;
+
+    // Optimistic update
+    setLocalVisibility(newVisibility);
+
+    try {
+      await updateProductByFields({
+        productId: product._id,
+        fields: [{ field: "visibility", value: newVisibility }],
+      }).unwrap();
+    } catch (error) {
+      // Revert on error
+      console.error("Failed to update visibility:", error);
+      setLocalVisibility(!newVisibility);
+    }
+  }, [localVisibility, product._id, updateProductByFields]);
 
   // Check if column is visible
   const isVisible = useCallback(
@@ -106,14 +135,24 @@ const ProductTableRow = memo(({
           <Text color={secondaryText}>{product.supplier || "-"}</Text>
         </Td>
       )}
-      {isVisible("isActive") && (
+      {isVisible("visibility") && (
         <Td>
-          <Badge
-            colorScheme={product.isActive ? "green" : "red"}
-            borderRadius="full"
-          >
-            {product.isActive ? "פעיל" : "לא פעיל"}
-          </Badge>
+          <Flex align="center" gap={2}>
+            <Switch
+              colorScheme={localVisibility ? "green" : "red"}
+              isChecked={localVisibility}
+              onChange={handleVisibilityToggle}
+              isDisabled={isUpdating}
+              size="md"
+            />
+            <Text
+              fontSize="sm"
+              color={localVisibility ? "green.500" : "red.500"}
+              fontWeight="600"
+            >
+              {localVisibility ? "פעיל" : "לא פעיל"}
+            </Text>
+          </Flex>
         </Td>
       )}
       {isVisible("actions") && (
@@ -174,7 +213,7 @@ const ProductTableRow = memo(({
     prevProduct.price === nextProduct.price &&
     prevProduct.stock === nextProduct.stock &&
     prevProduct.supplier === nextProduct.supplier &&
-    prevProduct.isActive === nextProduct.isActive &&
+    prevProduct.visibility === nextProduct.visibility &&
     prevProduct.images?.[0] === nextProduct.images?.[0]
   );
 });

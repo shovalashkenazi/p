@@ -10,13 +10,19 @@ export const useProductModal = () => {
   const dispatch = useDispatch();
 
   // ✅ Get modal state from Redux
-  const { isModalOpen, selectedProduct } = useSelector((state) => state.products);
-
+  const { isModalOpen, selectedProduct, modalInitialCategory } = useSelector(
+    (state) => state.products
+  );
   /**
    * Open modal for creating new product
+   * @param {string|null} category - Optional category to pre-fill in the modal
    */
-  const openCreateModal = () => {
-    dispatch(openModal(null));
+  const openCreateModal = (category = null) => {
+    if (category) {
+      dispatch(openModal({ product: null, category }));
+    } else {
+      dispatch(openModal(null));
+    }
   };
 
   /**
@@ -36,6 +42,7 @@ export const useProductModal = () => {
   return {
     isOpen: isModalOpen,
     selectedProduct,
+    modalInitialCategory,
     isEditMode: !!selectedProduct,
     openCreateModal,
     openEditModal,

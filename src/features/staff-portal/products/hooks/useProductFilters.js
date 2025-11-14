@@ -62,7 +62,6 @@ export const useProductFilters = () => {
 
   const handleCategoryChange = useCallback(
     (value) => {
-      console.log(value);
       dispatch(setCategory(value));
     },
     [dispatch]

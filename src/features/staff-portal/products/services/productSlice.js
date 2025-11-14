@@ -9,6 +9,7 @@ const initialState = {
   // Modal state
   isModalOpen: false,
   selectedProduct: null,
+  modalInitialCategory: null, // Category to pre-fill in modal
 
   // Filters (aligned with server filters object)
   searchQuery: "", // חיפוש כללי
@@ -33,6 +34,7 @@ const initialState = {
     "category",
     "price",
     "stock",
+    "visibility",
     "actions",
   ],
 };
@@ -44,11 +46,23 @@ const productSlice = createSlice({
     // ========== Modal Management ==========
     openModal(state, action) {
       state.isModalOpen = true;
-      state.selectedProduct = action.payload || null;
+      // action.payload can be: null (new product), product object (edit), or { product, category }
+      if (
+        action.payload &&
+        typeof action.payload === "object" &&
+        "category" in action.payload
+      ) {
+        state.selectedProduct = action.payload.product || null;
+        state.modalInitialCategory = action.payload.category;
+      } else {
+        state.selectedProduct = action.payload || null;
+        state.modalInitialCategory = null;
+      }
     },
     closeModal(state) {
       state.isModalOpen = false;
       state.selectedProduct = null;
+      state.modalInitialCategory = null;
     },
     setSelectedProduct(state, action) {
       state.selectedProduct = action.payload;
@@ -63,7 +77,6 @@ const productSlice = createSlice({
       state.page = 1; // Reset to first page on search
     },
     setCategory(state, action) {
-      console.log(action.payload);
       state.category = action.payload;
       state.page = 1; // Reset to first page on filter
     },
