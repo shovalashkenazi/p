@@ -10,26 +10,31 @@ const initialState = {
   isModalOpen: false,
   selectedProduct: null,
 
-  // Filters
-  searchQuery: "",
-  selectedCategory: null,
-  vehicleNumber: "", // מספר כלי
-  chassisNumber: "", // מספר שלדה
-  manufacturer: "", // יצרן
+  // Filters (aligned with server filters object)
+  searchQuery: "", // חיפוש כללי
+  category: null, // קטגוריה
+  vinNumber: "", // מספר VIN (שלדה)
+  tractorNumber: "", // מספר טרקטור
+  machine: "", // יצרן/מכונה
   model: "", // דגם
+  variant: "", // גרסה/תת-דגם
   year: "", // שנה
-  subModel: "", // תת דגם
-  isActiveFilter: null, // מוצר פעיל (null = הכל, true = פעיל, false = לא פעיל)
+  visibility: null, // מוצר פעיל (null = הכל, true = פעיל, false = לא פעיל)
 
-  // Pagination
-  currentPage: 1,
-  pageSize: 10,
+  // Pagination (aligned with server)
+  page: 1,
+  limit: 10,
 
   // Table UI
-  selectedColumns: ["image", "name", "catalogNumber", "category", "price", "stock", "actions"],
-
-  // Collapse states
-  collapses: {},
+  selectedColumns: [
+    "image",
+    "name",
+    "catalogNumber",
+    "category",
+    "price",
+    "stock",
+    "actions",
+  ],
 };
 
 const productSlice = createSlice({
@@ -52,63 +57,64 @@ const productSlice = createSlice({
       state.selectedProduct = null;
     },
 
-    // ========== Filters ==========
+    // ========== Filters (aligned with server) ==========
     setSearchQuery(state, action) {
       state.searchQuery = action.payload;
-      state.currentPage = 1; // Reset to first page on search
+      state.page = 1; // Reset to first page on search
     },
-    setSelectedCategory(state, action) {
-      state.selectedCategory = action.payload;
-      state.currentPage = 1; // Reset to first page on filter
+    setCategory(state, action) {
+      console.log(action.payload);
+      state.category = action.payload;
+      state.page = 1; // Reset to first page on filter
     },
-    setVehicleNumber(state, action) {
-      state.vehicleNumber = action.payload;
-      state.currentPage = 1;
+    setVinNumber(state, action) {
+      state.vinNumber = action.payload;
+      state.page = 1;
     },
-    setChassisNumber(state, action) {
-      state.chassisNumber = action.payload;
-      state.currentPage = 1;
+    setTractorNumber(state, action) {
+      state.tractorNumber = action.payload;
+      state.page = 1;
     },
-    setManufacturer(state, action) {
-      state.manufacturer = action.payload;
-      state.currentPage = 1;
+    setMachine(state, action) {
+      state.machine = action.payload;
+      state.page = 1;
     },
     setModel(state, action) {
       state.model = action.payload;
-      state.currentPage = 1;
+      state.page = 1;
+    },
+    setVariant(state, action) {
+      state.variant = action.payload;
+      state.page = 1;
     },
     setYear(state, action) {
       state.year = action.payload;
-      state.currentPage = 1;
+      state.page = 1;
     },
-    setSubModel(state, action) {
-      state.subModel = action.payload;
-      state.currentPage = 1;
-    },
-    setIsActiveFilter(state, action) {
-      state.isActiveFilter = action.payload;
-      state.currentPage = 1;
+    setVisibility(state, action) {
+      state.visibility = action.payload;
+      state.page = 1;
     },
     clearFilters(state) {
       state.searchQuery = "";
-      state.selectedCategory = null;
-      state.vehicleNumber = "";
-      state.chassisNumber = "";
-      state.manufacturer = "";
+      state.category = null;
+      state.vinNumber = "";
+      state.tractorNumber = "";
+      state.machine = "";
       state.model = "";
+      state.variant = "";
       state.year = "";
-      state.subModel = "";
-      state.isActiveFilter = null;
-      state.currentPage = 1;
+      state.visibility = null;
+      state.page = 1;
     },
 
-    // ========== Pagination ==========
-    setCurrentPage(state, action) {
-      state.currentPage = action.payload;
+    // ========== Pagination (aligned with server) ==========
+    setPage(state, action) {
+      state.page = action.payload;
     },
-    setPageSize(state, action) {
-      state.pageSize = action.payload;
-      state.currentPage = 1; // Reset to first page
+    setLimit(state, action) {
+      state.limit = action.payload;
+      state.page = 1; // Reset to first page
     },
 
     // ========== Table Columns ==========
@@ -121,16 +127,6 @@ const productSlice = createSlice({
         state.selectedColumns.push(column);
       }
     },
-
-    // ========== Collapse States ==========
-    toggleCollapse(state, action) {
-      const id = action.payload;
-      state.collapses[id] = !state.collapses[id];
-    },
-    setCollapseState(state, action) {
-      const { id, isOpen } = action.payload;
-      state.collapses[id] = isOpen;
-    },
   },
 });
 
@@ -140,20 +136,18 @@ export const {
   setSelectedProduct,
   clearSelectedProduct,
   setSearchQuery,
-  setSelectedCategory,
-  setVehicleNumber,
-  setChassisNumber,
-  setManufacturer,
+  setCategory,
+  setVinNumber,
+  setTractorNumber,
+  setMachine,
   setModel,
+  setVariant,
   setYear,
-  setSubModel,
-  setIsActiveFilter,
+  setVisibility,
   clearFilters,
-  setCurrentPage,
-  setPageSize,
+  setPage,
+  setLimit,
   toggleColumn,
-  toggleCollapse,
-  setCollapseState,
 } = productSlice.actions;
 
 export default productSlice.reducer;

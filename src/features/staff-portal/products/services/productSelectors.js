@@ -2,62 +2,30 @@
 import { createSelector } from "@reduxjs/toolkit";
 
 /**
- * ✅ Memoized selectors to prevent unnecessary re-renders
- * These selectors ensure referential stability
+ * ✅ Memoized selectors for product filters and pagination
+ * Aligned 1:1 with server filter names for consistency
  */
 
 // Base selector
 const selectProductsState = (state) => state.products;
 
-// ✅ Memoized filters selector (returns stable object reference)
-export const selectFilters = createSelector(
-  [selectProductsState],
-  (productsState) => ({
-    searchQuery: productsState.searchQuery,
-    selectedCategory: productsState.selectedCategory,
-    vehicleNumber: productsState.vehicleNumber,
-    chassisNumber: productsState.chassisNumber,
-    manufacturer: productsState.manufacturer,
-    model: productsState.model,
-    year: productsState.year,
-    subModel: productsState.subModel,
-    isActiveFilter: productsState.isActiveFilter,
-  })
-);
+// ✅ Filter selectors (aligned with server filters object)
+export const selectSearchQuery = (state) => state.products.searchQuery;
+export const selectCategory = (state) => state.products.category;
+export const selectVinNumber = (state) => state.products.vinNumber;
+export const selectTractorNumber = (state) => state.products.tractorNumber;
+export const selectMachine = (state) => state.products.machine;
+export const selectModel = (state) => state.products.model;
+export const selectVariant = (state) => state.products.variant;
+export const selectYear = (state) => state.products.year;
+export const selectVisibility = (state) => state.products.visibility;
 
-// ✅ Memoized pagination selector
-export const selectPagination = createSelector(
-  [selectProductsState],
-  (productsState) => ({
-    currentPage: productsState.currentPage,
-    pageSize: productsState.pageSize,
-  })
-);
+// ✅ Pagination selectors (aligned with server)
+export const selectPage = (state) => state.products.page;
+export const selectLimit = (state) => state.products.limit;
 
-// ✅ Memoized columns selector
+// ✅ UI state selectors
 export const selectSelectedColumns = createSelector(
   [selectProductsState],
   (productsState) => productsState.selectedColumns
 );
-
-// ✅ Memoized modal state selector
-export const selectModalState = createSelector(
-  [selectProductsState],
-  (productsState) => ({
-    isModalOpen: productsState.isModalOpen,
-    selectedProduct: productsState.selectedProduct,
-  })
-);
-
-// ✅ Individual field selectors (for fine-grained subscriptions)
-export const selectSearchQuery = (state) => state.products.searchQuery;
-export const selectSelectedCategory = (state) => state.products.selectedCategory;
-export const selectVehicleNumber = (state) => state.products.vehicleNumber;
-export const selectChassisNumber = (state) => state.products.chassisNumber;
-export const selectManufacturer = (state) => state.products.manufacturer;
-export const selectModel = (state) => state.products.model;
-export const selectYear = (state) => state.products.year;
-export const selectSubModel = (state) => state.products.subModel;
-export const selectIsActiveFilter = (state) => state.products.isActiveFilter;
-export const selectCurrentPage = (state) => state.products.currentPage;
-export const selectPageSize = (state) => state.products.pageSize;

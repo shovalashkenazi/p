@@ -3,60 +3,56 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSearchQuery,
-  setSelectedCategory,
-  setVehicleNumber,
-  setChassisNumber,
-  setManufacturer,
+  setCategory,
+  setVinNumber,
+  setTractorNumber,
+  setMachine,
   setModel,
+  setVariant,
   setYear,
-  setSubModel,
-  setIsActiveFilter,
+  setVisibility,
   clearFilters,
-  setCurrentPage,
-  setPageSize,
+  setPage,
+  setLimit,
   toggleColumn,
 } from "../services/productSlice";
 import {
-  selectFilters,
-  selectPagination,
   selectSelectedColumns,
   selectSearchQuery,
-  selectSelectedCategory,
-  selectVehicleNumber,
-  selectChassisNumber,
-  selectManufacturer,
+  selectCategory,
+  selectVinNumber,
+  selectTractorNumber,
+  selectMachine,
   selectModel,
+  selectVariant,
   selectYear,
-  selectSubModel,
-  selectIsActiveFilter,
-  selectCurrentPage,
-  selectPageSize,
+  selectVisibility,
+  selectPage,
+  selectLimit,
 } from "../services/productSelectors";
 
 /**
  * ✅ Hook for managing product filters and pagination
- * OPTIMIZED: Uses memoized selectors to prevent unnecessary re-renders
+ * Aligned 1:1 with server filter names
  */
 export const useProductFilters = () => {
   const dispatch = useDispatch();
 
-  // ✅ Use memoized selectors (returns stable references)
+  // ✅ Use memoized selectors (aligned with server)
   const searchQuery = useSelector(selectSearchQuery);
-  const selectedCategory = useSelector(selectSelectedCategory);
-  const vehicleNumber = useSelector(selectVehicleNumber);
-  const chassisNumber = useSelector(selectChassisNumber);
-  const manufacturer = useSelector(selectManufacturer);
+  const category = useSelector(selectCategory);
+  const vinNumber = useSelector(selectVinNumber);
+  const tractorNumber = useSelector(selectTractorNumber);
+  const machine = useSelector(selectMachine);
   const model = useSelector(selectModel);
+  const variant = useSelector(selectVariant);
   const year = useSelector(selectYear);
-  const subModel = useSelector(selectSubModel);
-  const isActiveFilter = useSelector(selectIsActiveFilter);
-  const currentPage = useSelector(selectCurrentPage);
-  const pageSize = useSelector(selectPageSize);
+  const visibility = useSelector(selectVisibility);
+  const page = useSelector(selectPage);
+  const limit = useSelector(selectLimit);
   const selectedColumns = useSelector(selectSelectedColumns);
 
-  /**
-   * Update search query (memoized)
-   */
+  // ✅ Memoized filter handlers (aligned with server)
   const handleSearchChange = useCallback(
     (query) => {
       dispatch(setSearchQuery(query));
@@ -64,49 +60,35 @@ export const useProductFilters = () => {
     [dispatch]
   );
 
-  /**
-   * Update selected category filter (memoized)
-   */
   const handleCategoryChange = useCallback(
-    (category) => {
-      dispatch(setSelectedCategory(category));
-    },
-    [dispatch]
-  );
-
-  /**
-   * Update vehicle number filter (memoized)
-   */
-  const handleVehicleNumberChange = useCallback(
     (value) => {
-      dispatch(setVehicleNumber(value));
+      console.log(value);
+      dispatch(setCategory(value));
     },
     [dispatch]
   );
 
-  /**
-   * Update chassis number filter (memoized)
-   */
-  const handleChassisNumberChange = useCallback(
+  const handleVinNumberChange = useCallback(
     (value) => {
-      dispatch(setChassisNumber(value));
+      dispatch(setVinNumber(value));
     },
     [dispatch]
   );
 
-  /**
-   * Update manufacturer filter (memoized)
-   */
-  const handleManufacturerChange = useCallback(
+  const handleTractorNumberChange = useCallback(
     (value) => {
-      dispatch(setManufacturer(value));
+      dispatch(setTractorNumber(value));
     },
     [dispatch]
   );
 
-  /**
-   * Update model filter (memoized)
-   */
+  const handleMachineChange = useCallback(
+    (value) => {
+      dispatch(setMachine(value));
+    },
+    [dispatch]
+  );
+
   const handleModelChange = useCallback(
     (value) => {
       dispatch(setModel(value));
@@ -114,9 +96,13 @@ export const useProductFilters = () => {
     [dispatch]
   );
 
-  /**
-   * Update year filter (memoized)
-   */
+  const handleVariantChange = useCallback(
+    (value) => {
+      dispatch(setVariant(value));
+    },
+    [dispatch]
+  );
+
   const handleYearChange = useCallback(
     (value) => {
       dispatch(setYear(value));
@@ -124,56 +110,33 @@ export const useProductFilters = () => {
     [dispatch]
   );
 
-  /**
-   * Update sub-model filter (memoized)
-   */
-  const handleSubModelChange = useCallback(
+  const handleVisibilityChange = useCallback(
     (value) => {
-      dispatch(setSubModel(value));
+      dispatch(setVisibility(value));
     },
     [dispatch]
   );
 
-  /**
-   * Update isActive filter (memoized)
-   */
-  const handleIsActiveFilterChange = useCallback(
-    (value) => {
-      dispatch(setIsActiveFilter(value));
-    },
-    [dispatch]
-  );
-
-  /**
-   * Clear all filters (memoized)
-   */
   const handleClearFilters = useCallback(() => {
     dispatch(clearFilters());
   }, [dispatch]);
 
-  /**
-   * Change current page (memoized)
-   */
+  // ✅ Memoized pagination handlers (aligned with server)
   const handlePageChange = useCallback(
-    (page) => {
-      dispatch(setCurrentPage(page));
+    (pageNum) => {
+      dispatch(setPage(pageNum));
     },
     [dispatch]
   );
 
-  /**
-   * Change page size (memoized)
-   */
-  const handlePageSizeChange = useCallback(
-    (size) => {
-      dispatch(setPageSize(size));
+  const handleLimitChange = useCallback(
+    (limitNum) => {
+      dispatch(setLimit(limitNum));
     },
     [dispatch]
   );
 
-  /**
-   * Toggle column visibility (memoized)
-   */
+  // ✅ UI handlers
   const handleToggleColumn = useCallback(
     (column) => {
       dispatch(toggleColumn(column));
@@ -182,32 +145,32 @@ export const useProductFilters = () => {
   );
 
   return {
-    // Filter values (from memoized selectors)
+    // Filter values (aligned with server)
     searchQuery,
-    selectedCategory,
-    vehicleNumber,
-    chassisNumber,
-    manufacturer,
+    category,
+    vinNumber,
+    tractorNumber,
+    machine,
     model,
+    variant,
     year,
-    subModel,
-    isActiveFilter,
-    currentPage,
-    pageSize,
+    visibility,
+    page,
+    limit,
     selectedColumns,
     // Filter setters (all memoized)
     setSearchQuery: handleSearchChange,
-    setSelectedCategory: handleCategoryChange,
-    setVehicleNumber: handleVehicleNumberChange,
-    setChassisNumber: handleChassisNumberChange,
-    setManufacturer: handleManufacturerChange,
+    setCategory: handleCategoryChange,
+    setVinNumber: handleVinNumberChange,
+    setTractorNumber: handleTractorNumberChange,
+    setMachine: handleMachineChange,
     setModel: handleModelChange,
+    setVariant: handleVariantChange,
     setYear: handleYearChange,
-    setSubModel: handleSubModelChange,
-    setIsActiveFilter: handleIsActiveFilterChange,
+    setVisibility: handleVisibilityChange,
     clearFilters: handleClearFilters,
-    setCurrentPage: handlePageChange,
-    setPageSize: handlePageSizeChange,
+    setPage: handlePageChange,
+    setLimit: handleLimitChange,
     toggleColumn: handleToggleColumn,
   };
 };

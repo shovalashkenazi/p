@@ -37,7 +37,8 @@ import { useGetCategoriesQuery } from "../categories/services/categoriesApiSlice
 
 const ProductModal = ({ isOpen, onClose }) => {
   const { selectedProduct, isEditMode } = useProductModal();
-  const { createProduct, updateProduct, isCreating, isUpdating } = useProductActions();
+  const { createProduct, updateProduct, isCreating, isUpdating } =
+    useProductActions();
   const { data: categories = [] } = useGetCategoriesQuery();
 
   // ✅ Theme colors
@@ -51,46 +52,49 @@ const ProductModal = ({ isOpen, onClose }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
   // ✅ Memoized default form state (created only once)
-  const defaultFormData = useMemo(() => ({
-    // כללי
-    name: "",
-    catalogNumber: "",
-    category: "",
-    description: "",
-    barcode: "",
-    isActive: true,
-    isAvailable: true,
-    isFeatured: false,
-    // פרטים כספיים
-    price: 0,
-    costPrice: 0,
-    taxRate: 17,
-    currency: "ILS",
-    // מלאי
-    stock: 0,
-    minStock: 5,
-    maxStock: 100,
-    warehouse: "",
-    lowStockAlert: false,
-    outOfStockAlert: false,
-    autoReorder: false,
-    // תאימות
-    compatibleModels: [],
-    width: "",
-    height: "",
-    thickness: "",
-    weight: "",
-    // תמונות
-    images: [],
-    // ספקים
-    supplier: "",
-    supplierSku: "",
-    minOrderQuantity: 1,
-    deliveryTime: 3,
-    // הערות
-    notes: "",
-    attachments: [],
-  }), []);
+  const defaultFormData = useMemo(
+    () => ({
+      // כללי
+      name: "",
+      catalogNumber: "",
+      category: "",
+      description: "",
+      barcode: "",
+      isActive: true,
+      isAvailable: true,
+      isFeatured: false,
+      // פרטים כספיים
+      price: 0,
+      costPrice: 0,
+      taxRate: 17,
+      currency: "ILS",
+      // מלאי
+      stock: 0,
+      minStock: 5,
+      maxStock: 100,
+      warehouse: "",
+      lowStockAlert: false,
+      outOfStockAlert: false,
+      autoReorder: false,
+      // תאימות
+      compatibleModels: [],
+      width: "",
+      height: "",
+      thickness: "",
+      weight: "",
+      // תמונות
+      images: [],
+      // ספקים
+      supplier: "",
+      supplierSku: "",
+      minOrderQuantity: 1,
+      deliveryTime: 3,
+      // הערות
+      notes: "",
+      attachments: [],
+    }),
+    []
+  );
 
   // ✅ Form state
   const [formData, setFormData] = useState(defaultFormData);
@@ -211,24 +215,29 @@ const ProductModal = ({ isOpen, onClose }) => {
     if (result.success) {
       handleClose();
     }
-  }, [formData, isEditMode, selectedProduct, updateProduct, createProduct, handleClose]);
-
-  // ✅ Memoized form handlers (prevent inline function recreation)
-  const handleInputChange = useCallback((field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleCheckboxChange = useCallback((field, checked) => {
-    setFormData(prev => ({ ...prev, [field]: checked }));
-  }, []);
+  }, [
+    formData,
+    isEditMode,
+    selectedProduct,
+    updateProduct,
+    createProduct,
+    handleClose,
+  ]);
 
   // ✅ Memoized financial calculations (only recalculate when price/cost changes)
   const financialSummary = useMemo(() => {
     const profit = formData.price - formData.costPrice;
-    const profitPercent = formData.costPrice > 0
-      ? (((formData.price - formData.costPrice) / formData.costPrice) * 100).toFixed(1)
-      : 0;
-    const priceWithTax = (formData.price * (1 + formData.taxRate / 100)).toFixed(2);
+    const profitPercent =
+      formData.costPrice > 0
+        ? (
+            ((formData.price - formData.costPrice) / formData.costPrice) *
+            100
+          ).toFixed(1)
+        : 0;
+    const priceWithTax = (
+      formData.price *
+      (1 + formData.taxRate / 100)
+    ).toFixed(2);
 
     return { profit, profitPercent, priceWithTax };
   }, [formData.price, formData.costPrice, formData.taxRate]);
@@ -239,10 +248,20 @@ const ProductModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="6xl" scrollBehavior="inside">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="6xl"
+      scrollBehavior="inside"
+    >
       <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
       <ModalContent dir="rtl" maxH="90vh" borderRadius="2xl" boxShadow="2xl">
-        <ModalHeader borderBottom="1px solid" borderColor={borderColor} py={6} px={8}>
+        <ModalHeader
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          py={6}
+          px={8}
+        >
           <HStack justify="space-between">
             <Box>
               <Text fontSize="2xl" fontWeight="700" color={textColor}>
@@ -282,22 +301,46 @@ const ProductModal = ({ isOpen, onClose }) => {
                 },
               }}
             >
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 כללי
               </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 פרטים כספיים
               </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 מלאי
               </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 תאימות
               </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 ספקים
               </Tab>
-              <Tab fontWeight="600" fontSize="sm" _selected={{ color: primary, borderColor: primary }}>
+              <Tab
+                fontWeight="600"
+                fontSize="sm"
+                _selected={{ color: primary, borderColor: primary }}
+              >
                 הערות
               </Tab>
             </TabList>
@@ -309,42 +352,75 @@ const ProductModal = ({ isOpen, onClose }) => {
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <GridItem>
                       <FormControl isRequired isInvalid={!!errors.name}>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           שם המוצר
                         </FormLabel>
                         <Input
                           value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
                           placeholder="לדוגמה: זכוכית קדמית טרקטור"
                           borderRadius="lg"
                         />
-                        {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
+                        {errors.name && (
+                          <FormErrorMessage>{errors.name}</FormErrorMessage>
+                        )}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
-                      <FormControl isRequired isInvalid={!!errors.catalogNumber}>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                      <FormControl
+                        isRequired
+                        isInvalid={!!errors.catalogNumber}
+                      >
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מק״ט
                         </FormLabel>
                         <Input
                           value={formData.catalogNumber}
-                          onChange={(e) => setFormData({ ...formData, catalogNumber: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              catalogNumber: e.target.value,
+                            })
+                          }
                           placeholder="לדוגמה: JD-6430-FG"
                           borderRadius="lg"
                         />
-                        {errors.catalogNumber && <FormErrorMessage>{errors.catalogNumber}</FormErrorMessage>}
+                        {errors.catalogNumber && (
+                          <FormErrorMessage>
+                            {errors.catalogNumber}
+                          </FormErrorMessage>
+                        )}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl isRequired isInvalid={!!errors.category}>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           קטגוריה
                         </FormLabel>
                         <Select
                           value={formData.category}
-                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              category: e.target.value,
+                            })
+                          }
                           borderRadius="lg"
                         >
                           <option value="">בחר קטגוריה</option>
@@ -354,18 +430,29 @@ const ProductModal = ({ isOpen, onClose }) => {
                             </option>
                           ))}
                         </Select>
-                        {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
+                        {errors.category && (
+                          <FormErrorMessage>{errors.category}</FormErrorMessage>
+                        )}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           ברקוד
                         </FormLabel>
                         <Input
                           value={formData.barcode}
-                          onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              barcode: e.target.value,
+                            })
+                          }
                           placeholder="ברקוד אופציונלי"
                           borderRadius="lg"
                         />
@@ -379,7 +466,12 @@ const ProductModal = ({ isOpen, onClose }) => {
                     </FormLabel>
                     <Textarea
                       value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                       placeholder="תיאור מפורט של המוצר..."
                       rows={4}
                       borderRadius="lg"
@@ -390,21 +482,33 @@ const ProductModal = ({ isOpen, onClose }) => {
                     <Checkbox
                       colorScheme="orange"
                       isChecked={formData.isActive}
-                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, isActive: e.target.checked })
+                      }
                     >
                       פריט פעיל
                     </Checkbox>
                     <Checkbox
                       colorScheme="orange"
                       isChecked={formData.isAvailable}
-                      onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          isAvailable: e.target.checked,
+                        })
+                      }
                     >
                       זמין להזמנה
                     </Checkbox>
                     <Checkbox
                       colorScheme="orange"
                       isChecked={formData.isFeatured}
-                      onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          isFeatured: e.target.checked,
+                        })
+                      }
                     >
                       מוצר מומלץ
                     </Checkbox>
@@ -418,12 +522,21 @@ const ProductModal = ({ isOpen, onClose }) => {
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <GridItem>
                       <FormControl isRequired isInvalid={!!errors.price}>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מחיר מכירה
                         </FormLabel>
                         <NumberInput
                           value={formData.price}
-                          onChange={(value) => setFormData({ ...formData, price: parseFloat(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              price: parseFloat(value) || 0,
+                            })
+                          }
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -432,18 +545,29 @@ const ProductModal = ({ isOpen, onClose }) => {
                             <NumberDecrementStepper />
                           </NumberInputStepper>
                         </NumberInput>
-                        {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
+                        {errors.price && (
+                          <FormErrorMessage>{errors.price}</FormErrorMessage>
+                        )}
                       </FormControl>
                     </GridItem>
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מחיר עלות
                         </FormLabel>
                         <NumberInput
                           value={formData.costPrice}
-                          onChange={(value) => setFormData({ ...formData, costPrice: parseFloat(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              costPrice: parseFloat(value) || 0,
+                            })
+                          }
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -457,12 +581,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           אחוז מע״מ
                         </FormLabel>
                         <NumberInput
                           value={formData.taxRate}
-                          onChange={(value) => setFormData({ ...formData, taxRate: parseFloat(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              taxRate: parseFloat(value) || 0,
+                            })
+                          }
                           min={0}
                           max={100}
                         >
@@ -477,12 +610,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מטבע
                         </FormLabel>
                         <Select
                           value={formData.currency}
-                          onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              currency: e.target.value,
+                            })
+                          }
                           borderRadius="lg"
                         >
                           <option value="ILS">שקל (₪)</option>
@@ -494,24 +636,35 @@ const ProductModal = ({ isOpen, onClose }) => {
                   </Grid>
 
                   <Box p={4} bg={hoverBg} borderRadius="lg">
-                    <Text fontSize="sm" fontWeight="600" color={textColor} mb={2}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="600"
+                      color={textColor}
+                      mb={2}
+                    >
                       סיכום פיננסי
                     </Text>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4}>
                       <Box>
-                        <Text fontSize="xs" color={secondaryText}>רווח ליחידה</Text>
+                        <Text fontSize="xs" color={secondaryText}>
+                          רווח ליחידה
+                        </Text>
                         <Text fontSize="lg" fontWeight="bold" color={primary}>
                           ₪{financialSummary.profit.toFixed(2)}
                         </Text>
                       </Box>
                       <Box>
-                        <Text fontSize="xs" color={secondaryText}>אחוז רווח</Text>
+                        <Text fontSize="xs" color={secondaryText}>
+                          אחוז רווח
+                        </Text>
                         <Text fontSize="lg" fontWeight="bold" color={primary}>
                           {financialSummary.profitPercent}%
                         </Text>
                       </Box>
                       <Box>
-                        <Text fontSize="xs" color={secondaryText}>מחיר כולל מע״מ</Text>
+                        <Text fontSize="xs" color={secondaryText}>
+                          מחיר כולל מע״מ
+                        </Text>
                         <Text fontSize="lg" fontWeight="bold" color={textColor}>
                           ₪{financialSummary.priceWithTax}
                         </Text>
@@ -527,12 +680,21 @@ const ProductModal = ({ isOpen, onClose }) => {
                   <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           כמות במלאי
                         </FormLabel>
                         <NumberInput
                           value={formData.stock}
-                          onChange={(value) => setFormData({ ...formData, stock: parseInt(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              stock: parseInt(value) || 0,
+                            })
+                          }
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -546,12 +708,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מחסן
                         </FormLabel>
                         <Select
                           value={formData.warehouse}
-                          onChange={(e) => setFormData({ ...formData, warehouse: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              warehouse: e.target.value,
+                            })
+                          }
                           borderRadius="lg"
                         >
                           <option value="">בחר מחסן</option>
@@ -564,12 +735,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מלאי מינימום
                         </FormLabel>
                         <NumberInput
                           value={formData.minStock}
-                          onChange={(value) => setFormData({ ...formData, minStock: parseInt(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              minStock: parseInt(value) || 0,
+                            })
+                          }
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -583,12 +763,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="600"
+                          color={textColor}
+                        >
                           מלאי מקסימום
                         </FormLabel>
                         <NumberInput
                           value={formData.maxStock}
-                          onChange={(value) => setFormData({ ...formData, maxStock: parseInt(value) || 0 })}
+                          onChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              maxStock: parseInt(value) || 0,
+                            })
+                          }
                           min={0}
                         >
                           <NumberInputField borderRadius="lg" />
@@ -602,28 +791,48 @@ const ProductModal = ({ isOpen, onClose }) => {
                   </Grid>
 
                   <Box p={4} bg={hoverBg} borderRadius="lg">
-                    <Text fontSize="sm" fontWeight="600" color={textColor} mb={2}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="600"
+                      color={textColor}
+                      mb={2}
+                    >
                       התראות מלאי
                     </Text>
                     <VStack align="stretch" spacing={2}>
                       <Checkbox
                         colorScheme="orange"
                         isChecked={formData.lowStockAlert}
-                        onChange={(e) => setFormData({ ...formData, lowStockAlert: e.target.checked })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            lowStockAlert: e.target.checked,
+                          })
+                        }
                       >
                         שלח התראה כאשר המלאי נמוך מ-{formData.minStock} יחידות
                       </Checkbox>
                       <Checkbox
                         colorScheme="orange"
                         isChecked={formData.outOfStockAlert}
-                        onChange={(e) => setFormData({ ...formData, outOfStockAlert: e.target.checked })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            outOfStockAlert: e.target.checked,
+                          })
+                        }
                       >
                         שלח התראה כאשר המלאי מגיע ל-0
                       </Checkbox>
                       <Checkbox
                         colorScheme="orange"
                         isChecked={formData.autoReorder}
-                        onChange={(e) => setFormData({ ...formData, autoReorder: e.target.checked })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            autoReorder: e.target.checked,
+                          })
+                        }
                       >
                         הזמן אוטומטית כאשר המלאי נמוך
                       </Checkbox>
@@ -643,19 +852,28 @@ const ProductModal = ({ isOpen, onClose }) => {
                       <Input
                         placeholder="רוחב"
                         value={formData.width}
-                        onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, width: e.target.value })
+                        }
                         borderRadius="lg"
                       />
                       <Input
                         placeholder="גובה"
                         value={formData.height}
-                        onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, height: e.target.value })
+                        }
                         borderRadius="lg"
                       />
                       <Input
                         placeholder="עובי"
                         value={formData.thickness}
-                        onChange={(e) => setFormData({ ...formData, thickness: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            thickness: e.target.value,
+                          })
+                        }
                         borderRadius="lg"
                       />
                     </Grid>
@@ -668,7 +886,9 @@ const ProductModal = ({ isOpen, onClose }) => {
                     <Input
                       placeholder="משקל המוצר"
                       value={formData.weight}
-                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, weight: e.target.value })
+                      }
                       borderRadius="lg"
                     />
                   </FormControl>
@@ -684,7 +904,9 @@ const ProductModal = ({ isOpen, onClose }) => {
                     </FormLabel>
                     <Select
                       value={formData.supplier}
-                      onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, supplier: e.target.value })
+                      }
                       borderRadius="lg"
                     >
                       <option value="">בחר ספק</option>
@@ -701,7 +923,12 @@ const ProductModal = ({ isOpen, onClose }) => {
                     </FormLabel>
                     <Input
                       value={formData.supplierSku}
-                      onChange={(e) => setFormData({ ...formData, supplierSku: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          supplierSku: e.target.value,
+                        })
+                      }
                       placeholder="מק״ט המוצר אצל הספק"
                       borderRadius="lg"
                     />
@@ -709,12 +936,21 @@ const ProductModal = ({ isOpen, onClose }) => {
 
                   <Grid templateColumns="repeat(2, 1fr)" gap={4}>
                     <FormControl>
-                      <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                      <FormLabel
+                        fontSize="sm"
+                        fontWeight="600"
+                        color={textColor}
+                      >
                         כמות הזמנה מינימלית
                       </FormLabel>
                       <NumberInput
                         value={formData.minOrderQuantity}
-                        onChange={(value) => setFormData({ ...formData, minOrderQuantity: parseInt(value) || 1 })}
+                        onChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            minOrderQuantity: parseInt(value) || 1,
+                          })
+                        }
                         min={1}
                       >
                         <NumberInputField borderRadius="lg" />
@@ -726,12 +962,21 @@ const ProductModal = ({ isOpen, onClose }) => {
                     </FormControl>
 
                     <FormControl>
-                      <FormLabel fontSize="sm" fontWeight="600" color={textColor}>
+                      <FormLabel
+                        fontSize="sm"
+                        fontWeight="600"
+                        color={textColor}
+                      >
                         זמן אספקה (ימים)
                       </FormLabel>
                       <NumberInput
                         value={formData.deliveryTime}
-                        onChange={(value) => setFormData({ ...formData, deliveryTime: parseInt(value) || 1 })}
+                        onChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            deliveryTime: parseInt(value) || 1,
+                          })
+                        }
                         min={1}
                       >
                         <NumberInputField borderRadius="lg" />
@@ -754,7 +999,9 @@ const ProductModal = ({ isOpen, onClose }) => {
                     </FormLabel>
                     <Textarea
                       value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notes: e.target.value })
+                      }
                       placeholder="הערות פנימיות למוצר..."
                       rows={8}
                       borderRadius="lg"

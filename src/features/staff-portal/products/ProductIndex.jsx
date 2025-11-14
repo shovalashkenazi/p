@@ -1,37 +1,47 @@
-import React, { useCallback, useMemo, lazy, Suspense, useDeferredValue, startTransition } from "react";
+// React
+import {
+  useCallback,
+  useMemo,
+  lazy,
+  Suspense,
+  useDeferredValue,
+  startTransition,
+} from "react";
+
+// Chakra UI
 import {
   Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Text,
   Flex,
   Heading,
-  useColorModeValue,
+  Text,
+  HStack,
+  Button,
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  HStack,
-  Button,
-  Td,
   Spinner,
   Center,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
-// ✅ Lazy load modal for better initial load performance
-const ProductModal = lazy(() => import("./ProductModal"));
+// Components
 import ProductFiltersBar from "./components/ProductFiltersBar";
 import ProductTable from "./components/ProductTable";
+
+// Hooks
 import {
   useProducts,
   useProductActions,
   useProductModal,
   useProductFilters,
 } from "./hooks";
+
+// External Services
 import { useGetCategoriesQuery } from "../categories/services/categoriesApiSlice";
+
+// ✅ Lazy load modal for better performance
+const ProductModal = lazy(() => import("./ProductModal"));
 
 /**
  * ✅ OPTIMIZED ProductIndex Component
@@ -52,11 +62,10 @@ const ProductIndex = () => {
     isError,
     error,
     refetch,
-    currentPage,
+    page,
   } = useProducts();
 
   // ✅ Defer rendering of products list to prevent blocking
-  // This allows urgent UI updates (like pagination clicks) to render first
   const deferredProducts = useDeferredValue(products);
 
   const { deleteProduct } = useProductActions();
@@ -66,26 +75,26 @@ const ProductIndex = () => {
 
   const {
     searchQuery,
-    selectedCategory,
-    vehicleNumber,
-    chassisNumber,
-    manufacturer,
+    category,
+    vinNumber,
+    tractorNumber,
+    machine,
     model,
+    variant,
     year,
-    subModel,
-    isActiveFilter,
+    visibility,
     selectedColumns,
     setSearchQuery,
-    setSelectedCategory,
-    setVehicleNumber,
-    setChassisNumber,
-    setManufacturer,
+    setCategory,
+    setVinNumber,
+    setTractorNumber,
+    setMachine,
     setModel,
+    setVariant,
     setYear,
-    setSubModel,
-    setIsActiveFilter,
+    setVisibility,
     clearFilters,
-    setCurrentPage,
+    setPage,
     toggleColumn,
   } = useProductFilters();
 
@@ -124,21 +133,23 @@ const ProductIndex = () => {
     });
   }, [refetch]);
 
-  // ✅ Memoized pagination click handler with startTransition
-  const handlePageClick = useCallback((page) => {
-    // Mark pagination as low-priority update
-    startTransition(() => {
-      setCurrentPage(page);
-    });
-  }, [setCurrentPage]);
+  // ✅ Memoized pagination click handler
+  const handlePageClick = useCallback(
+    (pageNum) => {
+      startTransition(() => {
+        setPage(pageNum);
+      });
+    },
+    [setPage]
+  );
 
-  // ✅ Memoized pagination buttons (only recalculate when totalPages/currentPage changes)
+  // ✅ Memoized pagination buttons
   const paginationButtons = useMemo(() => {
     if (totalPages <= 1) return null;
 
     const buttons = [];
     const maxButtons = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxButtons - 1);
 
     if (endPage - startPage + 1 < maxButtons) {
@@ -150,7 +161,7 @@ const ProductIndex = () => {
     }
 
     return buttons;
-  }, [totalPages, currentPage]);
+  }, [totalPages, page]);
 
   return (
     <Box p={8} dir="rtl">
@@ -166,28 +177,28 @@ const ProductIndex = () => {
         </Box>
       </Flex>
 
-      {/* ✅ Optimized Filters Bar (memoized component) */}
+      {/* ✅ Optimized Filters Bar */}
       <ProductFiltersBar
         searchQuery={searchQuery}
-        selectedCategory={selectedCategory}
-        vehicleNumber={vehicleNumber}
-        chassisNumber={chassisNumber}
-        manufacturer={manufacturer}
+        category={category}
+        vinNumber={vinNumber}
+        tractorNumber={tractorNumber}
+        machine={machine}
         model={model}
+        variant={variant}
         year={year}
-        subModel={subModel}
-        isActiveFilter={isActiveFilter}
+        visibility={visibility}
         selectedColumns={selectedColumns}
         categories={categories}
         onSearchChange={setSearchQuery}
-        onCategoryChange={setSelectedCategory}
-        onVehicleNumberChange={setVehicleNumber}
-        onChassisNumberChange={setChassisNumber}
-        onManufacturerChange={setManufacturer}
+        onCategoryChange={setCategory}
+        onVinNumberChange={setVinNumber}
+        onTractorNumberChange={setTractorNumber}
+        onMachineChange={setMachine}
         onModelChange={setModel}
+        onVariantChange={setVariant}
         onYearChange={setYear}
-        onSubModelChange={setSubModel}
-        onIsActiveFilterChange={setIsActiveFilter}
+        onVisibilityChange={setVisibility}
         onClearFilters={clearFilters}
         onToggleColumn={toggleColumn}
         onRefresh={handleRefresh}
@@ -221,8 +232,8 @@ const ProductIndex = () => {
           overflowX="auto"
           sx={{
             // ✅ CSS optimization hints for smooth scrolling and rendering
-            willChange: isFetching ? 'contents' : 'auto',
-            contain: 'layout style paint',
+            willChange: isFetching ? "contents" : "auto",
+            contain: "layout style paint",
           }}
         >
           {/* ✅ Memoized table component with deferred products */}
@@ -254,34 +265,34 @@ const ProductIndex = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handlePageClick(currentPage - 1)}
-                isDisabled={currentPage === 1}
+                onClick={() => handlePageClick(page - 1)}
+                isDisabled={page === 1}
                 borderRadius="lg"
               >
                 הקודם
               </Button>
 
               {paginationButtons &&
-                paginationButtons.map((page) => (
+                paginationButtons.map((pageNum) => (
                   <Button
-                    key={page}
+                    key={pageNum}
                     size="sm"
-                    variant={page === currentPage ? "solid" : "outline"}
-                    bg={page === currentPage ? primary : "transparent"}
-                    color={page === currentPage ? "white" : textColor}
-                    onClick={() => handlePageClick(page)}
+                    variant={pageNum === page ? "solid" : "outline"}
+                    bg={pageNum === page ? primary : "transparent"}
+                    color={pageNum === page ? "white" : textColor}
+                    onClick={() => handlePageClick(pageNum)}
                     borderRadius="lg"
                     minW="40px"
                   >
-                    {page}
+                    {pageNum}
                   </Button>
                 ))}
 
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handlePageClick(currentPage + 1)}
-                isDisabled={currentPage === totalPages}
+                onClick={() => handlePageClick(page + 1)}
+                isDisabled={page === totalPages}
                 borderRadius="lg"
               >
                 הבא
@@ -292,11 +303,13 @@ const ProductIndex = () => {
       </Box>
 
       {/* Product Modal - wrapped in Suspense for lazy loading */}
-      <Suspense fallback={
-        <Center>
-          <Spinner size="xl" color={primary} />
-        </Center>
-      }>
+      <Suspense
+        fallback={
+          <Center>
+            <Spinner size="xl" color={primary} />
+          </Center>
+        }
+      >
         <ProductModal isOpen={isOpen} onClose={closeModal} />
       </Suspense>
     </Box>

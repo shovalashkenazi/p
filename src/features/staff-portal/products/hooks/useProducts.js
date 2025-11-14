@@ -6,93 +6,93 @@ import { useDebounce } from "./useDebounce";
 
 /**
  * ✅ Hook for fetching and filtering products
- * Combines RTK Query with Redux UI filters and pagination
- * OPTIMIZED: Uses debounce and selectFromResult
+ * Aligned 1:1 with server getDataService logic
  */
 export const useProducts = () => {
-  // ✅ Get UI state from Redux
+  // ✅ Get UI state from Redux (aligned with server filters)
   const {
     searchQuery,
-    selectedCategory,
-    vehicleNumber,
-    chassisNumber,
-    manufacturer,
+    category,
+    vinNumber,
+    tractorNumber,
+    machine,
     model,
+    variant,
     year,
-    subModel,
-    isActiveFilter,
-    currentPage,
-    pageSize,
+    visibility,
+    page,
+    limit,
   } = useSelector((state) => state.products);
 
-  // ✅ Debounce search and filter inputs to prevent excessive API calls
+  // ✅ Debounce search and filter inputs (500ms delay)
   const debouncedSearch = useDebounce(searchQuery, 500);
-  const debouncedVehicleNumber = useDebounce(vehicleNumber, 500);
-  const debouncedChassisNumber = useDebounce(chassisNumber, 500);
-  const debouncedManufacturer = useDebounce(manufacturer, 500);
+  const debouncedVinNumber = useDebounce(vinNumber, 500);
+  const debouncedTractorNumber = useDebounce(tractorNumber, 500);
+  const debouncedMachine = useDebounce(machine, 500);
   const debouncedModel = useDebounce(model, 500);
+  const debouncedVariant = useDebounce(variant, 500);
   const debouncedYear = useDebounce(year, 500);
-  const debouncedSubModel = useDebounce(subModel, 500);
 
-  // ✅ Build query params (memoized to prevent recalculation on every render)
-  const queryParams = useMemo(() => {
+  // ✅ Build filters object (aligned 1:1 with server filters)
+  const filters = useMemo(() => {
     const params = {
-      page: currentPage,
-      limit: pageSize,
+      page: page - 1, // ✅ Server expects 0-based page (0 = first page)
+      limit,
     };
 
-    if (debouncedSearch) {
-      params.search = debouncedSearch;
+    // ✅ Add only non-empty filter values (server removes undefined/null)
+    if (debouncedSearch?.trim()) {
+      params.searchQuery = debouncedSearch.trim();
     }
 
-    if (selectedCategory) {
-      params.category = selectedCategory;
+    if (category) {
+      params.category = category;
     }
 
-    if (debouncedVehicleNumber) {
-      params.vehicleNumber = debouncedVehicleNumber;
+    if (debouncedVinNumber?.trim()) {
+      params.vinNumber = debouncedVinNumber.trim();
     }
 
-    if (debouncedChassisNumber) {
-      params.chassisNumber = debouncedChassisNumber;
+    if (debouncedTractorNumber?.trim()) {
+      params.tractorNumber = debouncedTractorNumber.trim();
     }
 
-    if (debouncedManufacturer) {
-      params.manufacturer = debouncedManufacturer;
+    if (debouncedMachine?.trim()) {
+      params.machine = debouncedMachine.trim();
     }
 
-    if (debouncedModel) {
-      params.model = debouncedModel;
+    if (debouncedModel?.trim()) {
+      params.model = debouncedModel.trim();
     }
 
-    if (debouncedYear) {
-      params.year = debouncedYear;
+    if (debouncedVariant?.trim()) {
+      params.variant = debouncedVariant.trim();
     }
 
-    if (debouncedSubModel) {
-      params.subModel = debouncedSubModel;
+    if (debouncedYear?.trim()) {
+      params.year = debouncedYear.trim();
     }
 
-    if (isActiveFilter !== null) {
-      params.isActive = isActiveFilter;
+    if (visibility !== null) {
+      params.visibility = visibility;
     }
 
     return params;
   }, [
+    page,
+    limit,
     debouncedSearch,
-    selectedCategory,
-    debouncedVehicleNumber,
-    debouncedChassisNumber,
-    debouncedManufacturer,
+    category,
+    debouncedVinNumber,
+    debouncedTractorNumber,
+    debouncedMachine,
     debouncedModel,
+    debouncedVariant,
     debouncedYear,
-    debouncedSubModel,
-    isActiveFilter,
-    currentPage,
-    pageSize,
+    visibility,
   ]);
 
-  // ✅ Fetch products from RTK Query with advanced optimizations
+  // ✅ Fetch products from RTK Query (aligned with server)
   const {
     data,
     isLoading,
@@ -100,12 +100,12 @@ export const useProducts = () => {
     isError,
     error,
     refetch,
-  } = useGetProductsQuery(queryParams, {
-    // ✅ Keep previous data while fetching new data (prevents table "jumping")
+  } = useGetProductsQuery(filters, {
+    // ✅ Keep previous data while fetching (prevents table "jumping")
     keepPreviousData: true,
-    // ✅ Refetch only when necessary
-    refetchOnMountOrArgChange: 30, // 30 seconds cache
-    // ✅ selectFromResult prevents re-renders when other query data changes
+    // ✅ Cache for 30 seconds
+    refetchOnMountOrArgChange: 30,
+    // ✅ Fine-grained re-render control
     selectFromResult: ({ data, isLoading, isFetching, isError, error }) => ({
       data,
       isLoading,
@@ -115,7 +115,7 @@ export const useProducts = () => {
     }),
   });
 
-  // ✅ Memoize extracted data to prevent recalculation
+  // ✅ Memoize extracted data
   const products = useMemo(() => data?.products || [], [data?.products]);
   const total = useMemo(() => data?.total || 0, [data?.total]);
   const totalPages = useMemo(() => data?.totalPages || 0, [data?.totalPages]);
@@ -129,7 +129,7 @@ export const useProducts = () => {
     isError,
     error,
     refetch,
-    currentPage,
-    pageSize,
+    page,
+    limit,
   };
 };

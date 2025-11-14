@@ -30,29 +30,29 @@ import {
 
 /**
  * ✅ Memoized Filters Bar Component
- * Prevents unnecessary re-renders when parent state changes
+ * Aligned with server filter names
  */
 const ProductFiltersBar = memo(({
   searchQuery,
-  selectedCategory,
-  vehicleNumber,
-  chassisNumber,
-  manufacturer,
+  category,
+  vinNumber,
+  tractorNumber,
+  machine,
   model,
+  variant,
   year,
-  subModel,
-  isActiveFilter,
+  visibility,
   selectedColumns,
   categories,
   onSearchChange,
   onCategoryChange,
-  onVehicleNumberChange,
-  onChassisNumberChange,
-  onManufacturerChange,
+  onVinNumberChange,
+  onTractorNumberChange,
+  onMachineChange,
   onModelChange,
+  onVariantChange,
   onYearChange,
-  onSubModelChange,
-  onIsActiveFilterChange,
+  onVisibilityChange,
   onClearFilters,
   onToggleColumn,
   onRefresh,
@@ -67,13 +67,13 @@ const ProductFiltersBar = memo(({
 
   // Count active filters
   const activeFiltersCount = [
-    vehicleNumber,
-    chassisNumber,
-    manufacturer,
+    vinNumber,
+    tractorNumber,
+    machine,
     model,
+    variant,
     year,
-    subModel,
-    isActiveFilter !== null,
+    visibility !== null,
   ].filter(Boolean).length;
 
   // ✅ Memoized input handler to prevent inline function creation
@@ -122,8 +122,8 @@ const ProductFiltersBar = memo(({
             borderColor={borderColor}
             borderWidth="1px"
           >
-            {selectedCategory
-              ? categories.find((c) => c.value === selectedCategory)?.label ||
+            {category
+              ? categories.find((c) => c.value === category)?.label ||
                 "קטגוריה"
               : "כל הקטגוריות"}
           </MenuButton>
@@ -132,12 +132,12 @@ const ProductFiltersBar = memo(({
               כל הקטגוריות
             </ChakraMenuItem>
             <Divider />
-            {categories.map((category) => (
+            {categories.map((cat) => (
               <ChakraMenuItem
-                key={category._id}
-                onClick={() => onCategoryChange(category.value)}
+                key={cat._id}
+                onClick={() => onCategoryChange(cat.value)}
               >
-                {category.label}
+                {cat.label}
               </ChakraMenuItem>
             ))}
           </MenuList>
@@ -169,12 +169,12 @@ const ProductFiltersBar = memo(({
 
               <FormControl>
                 <FormLabel fontSize="sm" color={textColor}>
-                  מספר כלי
+                  מספר VIN (שלדה)
                 </FormLabel>
                 <Input
-                  placeholder="הזן מספר כלי"
-                  value={vehicleNumber}
-                  onChange={(e) => onVehicleNumberChange(e.target.value)}
+                  placeholder="הזן מספר VIN"
+                  value={vinNumber}
+                  onChange={(e) => onVinNumberChange(e.target.value)}
                   size="sm"
                   borderRadius="lg"
                 />
@@ -182,12 +182,12 @@ const ProductFiltersBar = memo(({
 
               <FormControl>
                 <FormLabel fontSize="sm" color={textColor}>
-                  מספר שלדה
+                  מספר טרקטור
                 </FormLabel>
                 <Input
-                  placeholder="הזן מספר שלדה"
-                  value={chassisNumber}
-                  onChange={(e) => onChassisNumberChange(e.target.value)}
+                  placeholder="הזן מספר טרקטור"
+                  value={tractorNumber}
+                  onChange={(e) => onTractorNumberChange(e.target.value)}
                   size="sm"
                   borderRadius="lg"
                 />
@@ -195,12 +195,12 @@ const ProductFiltersBar = memo(({
 
               <FormControl>
                 <FormLabel fontSize="sm" color={textColor}>
-                  יצרן
+                  יצרן/מכונה
                 </FormLabel>
                 <Input
                   placeholder="הזן יצרן"
-                  value={manufacturer}
-                  onChange={(e) => onManufacturerChange(e.target.value)}
+                  value={machine}
+                  onChange={(e) => onMachineChange(e.target.value)}
                   size="sm"
                   borderRadius="lg"
                 />
@@ -221,6 +221,19 @@ const ProductFiltersBar = memo(({
 
               <FormControl>
                 <FormLabel fontSize="sm" color={textColor}>
+                  גרסה/תת-דגם
+                </FormLabel>
+                <Input
+                  placeholder="הזן גרסה"
+                  value={variant}
+                  onChange={(e) => onVariantChange(e.target.value)}
+                  size="sm"
+                  borderRadius="lg"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm" color={textColor}>
                   שנה
                 </FormLabel>
                 <Input
@@ -232,29 +245,16 @@ const ProductFiltersBar = memo(({
                 />
               </FormControl>
 
-              <FormControl>
-                <FormLabel fontSize="sm" color={textColor}>
-                  תת דגם
-                </FormLabel>
-                <Input
-                  placeholder="הזן תת דגם"
-                  value={subModel}
-                  onChange={(e) => onSubModelChange(e.target.value)}
-                  size="sm"
-                  borderRadius="lg"
-                />
-              </FormControl>
-
               <FormControl display="flex" alignItems="center">
-                <FormLabel htmlFor="active-filter" mb="0" fontSize="sm">
+                <FormLabel htmlFor="visibility-filter" mb="0" fontSize="sm">
                   מוצר פעיל
                 </FormLabel>
                 <Switch
-                  id="active-filter"
+                  id="visibility-filter"
                   colorScheme="orange"
-                  isChecked={isActiveFilter === true}
+                  isChecked={visibility === true}
                   onChange={(e) =>
-                    onIsActiveFilterChange(e.target.checked ? true : null)
+                    onVisibilityChange(e.target.checked ? true : null)
                   }
                 />
               </FormControl>
@@ -375,14 +375,14 @@ const ProductFiltersBar = memo(({
   // ✅ Custom comparison - prevent re-render unless these specific props changed
   return (
     prevProps.searchQuery === nextProps.searchQuery &&
-    prevProps.selectedCategory === nextProps.selectedCategory &&
-    prevProps.vehicleNumber === nextProps.vehicleNumber &&
-    prevProps.chassisNumber === nextProps.chassisNumber &&
-    prevProps.manufacturer === nextProps.manufacturer &&
+    prevProps.category === nextProps.category &&
+    prevProps.vinNumber === nextProps.vinNumber &&
+    prevProps.tractorNumber === nextProps.tractorNumber &&
+    prevProps.machine === nextProps.machine &&
     prevProps.model === nextProps.model &&
+    prevProps.variant === nextProps.variant &&
     prevProps.year === nextProps.year &&
-    prevProps.subModel === nextProps.subModel &&
-    prevProps.isActiveFilter === nextProps.isActiveFilter &&
+    prevProps.visibility === nextProps.visibility &&
     prevProps.isFetching === nextProps.isFetching &&
     prevProps.categories.length === nextProps.categories.length &&
     prevProps.selectedColumns.length === nextProps.selectedColumns.length &&

@@ -23,14 +23,41 @@ const baseQuery = fetchBaseQuery({
 export const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery,
-  tagTypes: ["Products", "ProductOptions"],
+  tagTypes: ["Products"],
   endpoints: (builder) => ({
-    // ========== GET: Fetch products with pagination ==========
+    // ========== GET: Fetch products (aligned with server getDataService) ==========
     getProducts: builder.query({
-      query: (params) => ({
-        url: "/product/getData",
-        params,
-      }),
+      query: (filters) => {
+        // ✅ Build clean params object (remove undefined values)
+        const params = {};
+
+        // Pagination (required)
+        if (filters.page) params.page = filters.page;
+        if (filters.limit) params.limit = filters.limit;
+
+        // Search filters (send only if defined)
+        if (filters.searchQuery) params.searchQuery = filters.searchQuery;
+        if (filters.category) params.category = filters.category;
+        if (filters.vinNumber) params.vinNumber = filters.vinNumber;
+        if (filters.tractorNumber) params.tractorNumber = filters.tractorNumber;
+        if (filters.machine) params.machine = filters.machine;
+        if (filters.model) params.model = filters.model;
+        if (filters.variant) params.variant = filters.variant;
+        if (filters.year) params.year = filters.year;
+        if (filters.visibility !== null && filters.visibility !== undefined) {
+          params.visibility = filters.visibility;
+        }
+
+        // 🔍 DEBUG: Log what we're sending to server
+        console.log("📤 [FRONTEND] Filters received from hook:", filters);
+        console.log("📤 [FRONTEND] Params being sent to server:", params);
+        console.log("📤 [FRONTEND] Full URL will be: /product/getData?" + new URLSearchParams(params).toString());
+
+        return {
+          url: "/product/getData",
+          params,
+        };
+      },
       providesTags: (result) =>
         result?.products
           ? [
@@ -38,34 +65,18 @@ export const productsApi = createApi({
               { type: "Products", id: "LIST" },
             ]
           : [{ type: "Products", id: "LIST" }],
-      transformResponse: (response) => ({
-        products: response.products || [],
-        total: response.total || 0,
-        totalPages: response.totalPages || 0,
-      }),
-    }),
+      transformResponse: (response) => {
+        // 🔍 DEBUG: Log what we received from server
+        console.log("📥 [FRONTEND] Response received from server:", response);
+        console.log("📥 [FRONTEND] Products count:", response?.products?.length || 0);
+        console.log("📥 [FRONTEND] Total:", response?.total || 0);
 
-    // ========== GET: Fetch single product by catalog number ==========
-    getProductByCatalogNumber: builder.query({
-      query: (catalogNumber) => ({
-        url: "/product/getProductByCatalogNumber",
-        method: "POST",
-        body: { catalogNumber },
-      }),
-      providesTags: (result, error, catalogNumber) => [
-        { type: "Products", id: catalogNumber },
-      ],
-    }),
-
-    // ========== GET: Fetch options for category ==========
-    getOptions: builder.query({
-      query: (category) => ({
-        url: "/product/getOptions",
-        method: "POST",
-        body: { category },
-      }),
-      providesTags: ["ProductOptions"],
-      transformResponse: (response) => response || [],
+        return {
+          products: response.products || [],
+          total: response.total || 0,
+          totalPages: response.totalPages || 0,
+        };
+      },
     }),
 
     // ========== POST: Create new product ==========
@@ -119,12 +130,8 @@ export const productsApi = createApi({
 // ✅ Export hooks for usage in components
 export const {
   useGetProductsQuery,
-  useGetProductByCatalogNumberQuery,
-  useGetOptionsQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
   useUpdateProductByFieldsMutation,
-  useLazyGetProductByCatalogNumberQuery,
-  useLazyGetOptionsQuery,
 } = productsApi;
